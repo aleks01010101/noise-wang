@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# Directories
+build
+temp
+
+# VS specific
+*.vs
+*.user
