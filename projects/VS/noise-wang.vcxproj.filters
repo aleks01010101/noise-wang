@@ -13,10 +13,63 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\utility">
+      <UniqueIdentifier>{91efc9f2-4f21-4fcb-84bb-ea0fa9bd49cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\testing">
+      <UniqueIdentifier>{3583f932-1bb1-456e-8bc7-cf1d578e5bb9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\utility\ArgumentParser.cpp">
+      <Filter>Source Files\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\testing\Test.cpp">
+      <Filter>Source Files\testing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\testing\TestSuite.cpp">
+      <Filter>Source Files\testing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\testing\TestRunner.cpp">
+      <Filter>Source Files\testing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utility\ArgumentParserTests.cpp">
+      <Filter>Source Files\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\RunTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\source\utility\ArgumentParser.hpp">
+      <Filter>Source Files\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utility\Types.hpp">
+      <Filter>Source Files\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\testing\TestSuite.hpp">
+      <Filter>Source Files\testing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\testing\Test.hpp">
+      <Filter>Source Files\testing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\testing\TestingContext.hpp">
+      <Filter>Source Files\testing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\testing\TestRunner.hpp">
+      <Filter>Source Files\testing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\testing\TestFixture.hpp">
+      <Filter>Source Files\testing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\RunTests.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utility\ArgumentParserTests.hpp">
+      <Filter>Source Files\utility</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

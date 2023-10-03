@@ -19,6 +19,8 @@ public:
 
 protected:
 	void Check(bool value);
+	template<typename T>
+	void CheckEqual(const T& expected, const T& actual) { Check(expected == actual); }
 
 	virtual void DoRun() = 0;
 

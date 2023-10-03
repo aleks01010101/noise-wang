@@ -20,6 +20,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp" />
+    <ClCompile Include="..\..\source\RunTests.cpp" />
+    <ClCompile Include="..\..\source\testing\Test.cpp" />
+    <ClCompile Include="..\..\source\testing\TestRunner.cpp" />
+    <ClCompile Include="..\..\source\testing\TestSuite.cpp" />
+    <ClCompile Include="..\..\source\utility\ArgumentParser.cpp" />
+    <ClCompile Include="..\..\source\utility\ArgumentParserTests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\source\RunTests.hpp" />
+    <ClInclude Include="..\..\source\testing\Test.hpp" />
+    <ClInclude Include="..\..\source\testing\TestFixture.hpp" />
+    <ClInclude Include="..\..\source\testing\TestingContext.hpp" />
+    <ClInclude Include="..\..\source\testing\TestRunner.hpp" />
+    <ClInclude Include="..\..\source\testing\TestSuite.hpp" />
+    <ClInclude Include="..\..\source\utility\ArgumentParser.hpp" />
+    <ClInclude Include="..\..\source\utility\ArgumentParserTests.hpp" />
+    <ClInclude Include="..\..\source\utility\Types.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -101,6 +118,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\..\source\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,6 +139,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\..\source\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,6 +160,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\..\source\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -161,6 +181,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\..\source\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
