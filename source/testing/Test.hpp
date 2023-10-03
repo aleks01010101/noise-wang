@@ -15,6 +15,7 @@ public:
 	Test& operator =(Test&&) = delete;
 
 	bool Run();
+	const std::string& GetName() const { return name; }
 
 protected:
 	void Check(bool value);

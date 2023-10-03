@@ -2,6 +2,8 @@
 
 #include "Test.hpp"
 
+#include <iostream>
+
 TestSuite::TestSuite(const std::string& suiteName)
 	: name(suiteName)
 {
@@ -30,6 +32,9 @@ void TestSuite::Run(TestingContext& context)
 		bool failed = !tests[i]->Run();
 		++context.runCount;
 		if (failed)
+		{
+			std::cerr << "Test " << tests[i]->GetName() << " failed!" << std::endl;
 			++context.failedCount;
+		}
 	}
 }
