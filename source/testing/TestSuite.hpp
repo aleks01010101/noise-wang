@@ -28,3 +28,18 @@ private:
 	std::vector<Test*> tests;
 	std::string name;
 };
+
+#define TEST_SUITE(Name)\
+class Suite_ ## Name \
+	: public TestSuite \
+{ \
+public: \
+	Suite_ ## Name() \
+		: TestSuite(#Name) \
+	{ \
+	} \
+}; \
+ \
+static const bool kSuite_ ## Name ## _Registered = TestRunner::Instance().Register(new Suite_ ## Name); \
+\
+namespace Suite_ ## Name ## _Tests

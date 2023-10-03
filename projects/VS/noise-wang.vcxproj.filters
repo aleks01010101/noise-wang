@@ -68,8 +68,5 @@
     <ClInclude Include="..\..\source\RunTests.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\utility\ArgumentParserTests.hpp">
-      <Filter>Source Files\utility</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

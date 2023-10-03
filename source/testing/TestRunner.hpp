@@ -4,6 +4,7 @@
 
 #include <vector>
 
+class Test;
 class TestSuite;
 
 class TestRunner final
@@ -17,7 +18,10 @@ public:
 	TestRunner& operator =(const TestRunner&) = delete;
 	TestRunner& operator =(TestRunner&&) = delete;
 
-	void Register(TestSuite* suite);
+	static TestRunner& Instance();
+
+	bool Register(TestSuite* suite);
+	bool Register(Test* test);
 	void Run(TestingContext& context);
 
 private:

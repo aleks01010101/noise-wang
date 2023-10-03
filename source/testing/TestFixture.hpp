@@ -13,20 +13,18 @@ struct TestFixture
 	{}
 };
 
-#define DECLARE_TEST_FIXTURE(Name) \
+#define TEST_FIXTURE(FixtureName, Name) \
 struct Test_ ## Name \
-	: public TestFixture<Fixture> \
+	: public TestFixture<FixtureName> \
 { \
-	Test_ ## Name(); \
+	Test_ ## Name() \
+		: TestFixture(#Name)\
+	{\
+	}\
 \
 	virtual void DoRun() override; \
-};
-
-#define REGISTER_TEST(Name) Register(new Test_ ## Name)
-
-#define IMPLEMENT_TEST_FIXTURE(Suite, Name) \
-Suite::Test_ ## Name::Test_ ## Name() \
-	: TestFixture(#Name) \
-{} \
+}; \
 \
-void Suite::Test_ ## Name::DoRun()
+static const bool kTest_ ## Name ## _Registered = TestRunner::Instance().Register(new Test_ ## Name); \
+\
+void Test_ ## Name::DoRun()

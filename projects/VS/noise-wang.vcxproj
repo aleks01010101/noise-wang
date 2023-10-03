@@ -35,7 +35,6 @@
     <ClInclude Include="..\..\source\testing\TestRunner.hpp" />
     <ClInclude Include="..\..\source\testing\TestSuite.hpp" />
     <ClInclude Include="..\..\source\utility\ArgumentParser.hpp" />
-    <ClInclude Include="..\..\source\utility\ArgumentParserTests.hpp" />
     <ClInclude Include="..\..\source\utility\Types.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

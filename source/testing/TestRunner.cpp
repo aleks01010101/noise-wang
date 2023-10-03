@@ -1,6 +1,9 @@
 #include "TestRunner.hpp"
 
+#include "Test.hpp"
 #include "TestSuite.hpp"
+
+#include <cassert>
 
 TestRunner::TestRunner()
 {
@@ -12,9 +15,23 @@ TestRunner::~TestRunner()
 		delete suites[i];
 }
 
-void TestRunner::Register(TestSuite* suite)
+TestRunner& TestRunner::Instance()
+{
+	static TestRunner testRunner;
+	return testRunner;
+}
+
+bool TestRunner::Register(TestSuite* suite)
 {
 	suites.push_back(suite);
+	return true;
+}
+
+bool TestRunner::Register(Test* test)
+{
+	assert(!suites.empty());
+	suites.back()->Register(test);
+	return true;
 }
 
 void TestRunner::Run(TestingContext& context)
