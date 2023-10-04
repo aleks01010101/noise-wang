@@ -1,7 +1,7 @@
+#include "TGAFileFormat.hpp"
+
 #include <cmath>
 #include <fstream>
-
-#include "TGAFileFormat.hpp"
 
 void TGAFileFormat::Save(const f32* const pixels, u32 width, u32 height, u32 channels, const std::string& fileName)
 {

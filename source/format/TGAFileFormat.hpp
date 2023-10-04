@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
-
 #include "utility/Types.hpp"
+
+#include <string>
 
 class TGAFileFormat
 {

@@ -41,7 +41,7 @@ static const char* kDefaultArgument[] = {
 TEST_SUITE(ArgumentParser_DefaultArgumentParsing)
 {
 	// 1.1: default argument supplied -> success
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_DefaultArgument_ParseSuccessful)
+	TEST_FIXTURE(ArgumentParserFixture, DefaultArgument_Parse_Success)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
@@ -53,7 +53,7 @@ TEST_SUITE(ArgumentParser_DefaultArgumentParsing)
 TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 {
 	// 2.1: single known argument -> success
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_OneKnownArgument_ParseSuccessful)
+	TEST_FIXTURE(ArgumentParserFixture, OneKnownArgument_Parse_Succeeds)
 	{
 		const char* arguments[] = {
 			"defaultArg",
@@ -66,7 +66,7 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 	}
 
 	// 2.2: single known argument, short name -> success
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_OneKnownArgumentShortName_ParseSuccessful)
+	TEST_FIXTURE(ArgumentParserFixture, OneKnownArgumentShortName_Parse_Succeeds)
 	{
 		const char* arguments[] = {
 			"defaultArg",
@@ -79,7 +79,7 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 	}
 
 	// 2.3: two known arguments, out of order -> success
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_TwoKnownArgumentsOutOfOrder_ParseSuccessful)
+	TEST_FIXTURE(ArgumentParserFixture, TwoKnownArgumentsOutOfOrder_Parse_Succeeds)
 	{
 		const char* arguments[] = {
 			"defaultArg",
@@ -94,7 +94,7 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 	}
 
 	// 2.4: two known arguments, out of order, short names -> success
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_TwoKnownArgumentsOutOfOrderShortNames_ParseSuccessful)
+	TEST_FIXTURE(ArgumentParserFixture, TwoKnownArgumentsOutOfOrderShortNames_Parse_Succeeds)
 	{
 		const char* arguments[] = {
 			"defaultArg",
@@ -109,7 +109,7 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 	}
 
 	// 2.5: unknown argument -> fail
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_OneUnknownArgument_ParseFails)
+	TEST_FIXTURE(ArgumentParserFixture, OneUnknownArgument_Parse_Fails)
 	{
 		const char* arguments[] = {
 			"defaultArg",
@@ -121,7 +121,7 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 	}
 
 	// 2.6: unknown argument, then known argument -> fail
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_OneUnknownArgumentBeforeKnownArgument_ParseFails)
+	TEST_FIXTURE(ArgumentParserFixture, OneUnknownArgumentBeforeKnownArgument_Parse_Fails)
 	{
 		const char* arguments[] = {
 			"defaultArg",
@@ -135,7 +135,7 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 	}
 
 	// 2.7: known argument, then unknown argument -> fail
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_OneUnknownArgumentAfterKnownArgument_ParseFails)
+	TEST_FIXTURE(ArgumentParserFixture, OneUnknownArgumentAfterKnownArgument_Parse_Fails)
 	{
 		const char* arguments[] = {
 			"defaultArg",
@@ -153,7 +153,7 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 {
 	// 3.1: argument without valid values -> 0
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_ArgumentWithoutValidValues_ValueIsZero)
+	TEST_FIXTURE(ArgumentParserFixture, ArgumentWithoutValidValues_GetValue_ReturnsZero)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
@@ -164,7 +164,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 	}
 
 	// 3.2: argument with one empty valid value -> 0
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_ArgumentWithEmptyValidValue_ValueIsZero)
+	TEST_FIXTURE(ArgumentParserFixture, ArgumentWithEmptyValidValue_GetValue_ReturnsZero)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
@@ -175,7 +175,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 	}
 
 	// 3.3: argument with several valid values -> 0
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_ArgumentWithValidValues_ValueIsZero)
+	TEST_FIXTURE(ArgumentParserFixture, ArgumentWithValidValues_GetValue_ReturnsZero)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
@@ -186,7 +186,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 	}
 
 	// 3.4: argument without valid values, custom default -> custom default
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_ArgumentWithoutValidValuesWithCustomDefault_ValueIsCustomDefault)
+	TEST_FIXTURE(ArgumentParserFixture, ArgumentWithoutValidValuesWithCustomDefault_GetValue_ReturnsCustomDefault)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
@@ -197,7 +197,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 	}
 
 	// 3.5: argument with one empty valid value, custom default -> custom default
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_ArgumentWithEmptyValidValueWithCustomDefault_ValueIsCustomDefault)
+	TEST_FIXTURE(ArgumentParserFixture, ArgumentWithEmptyValidValueWithCustomDefault_GetValue_ReturnsCustomDefault)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
@@ -208,7 +208,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 	}
 
 	// 3.6: argument with several valid values, custom default -> custom default
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_ArgumentWithValidValuesWithCustomDefault_ValueIsCustomDefault)
+	TEST_FIXTURE(ArgumentParserFixture, ArgumentWithValidValuesWithCustomDefault_GetValue_ReturnsCustomDefault)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
@@ -223,7 +223,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 TEST_SUITE(ArgumentParser_SpecifiedArgumentValue)
 {
 	// 4.1: no valid values -> no check
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_ArgumentWithoutValidValues_ValueAsIs)
+	TEST_FIXTURE(ArgumentParserFixture, ArgumentWithoutValidValues_GetValue_ReturnsArgument)
 	{
 		const char* arguments[] = {
 			"defaultArg",
@@ -238,7 +238,7 @@ TEST_SUITE(ArgumentParser_SpecifiedArgumentValue)
 	}
 
 	// 4.2: several valid values -> selects value index
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_ArgumentWithValidValues_ValueIndex)
+	TEST_FIXTURE(ArgumentParserFixture, ArgumentWithValidValues_GetValue_ReturnsKnownArgumentIndex)
 	{
 		const char* arguments[] = {
 			"defaultArg",
@@ -253,7 +253,7 @@ TEST_SUITE(ArgumentParser_SpecifiedArgumentValue)
 	}
 
 	// 4.3: no valid values, not a number -> fail
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_ArgumentWithoutValidValuesNotANumber_ParseFails)
+	TEST_FIXTURE(ArgumentParserFixture, ArgumentWithoutValidValuesNotANumber_Parse_Fails)
 	{
 		const char* arguments[] = {
 			"defaultArg",
@@ -267,7 +267,7 @@ TEST_SUITE(ArgumentParser_SpecifiedArgumentValue)
 	}
 
 	// 4.4. several valid values, value not in set -> fail
-	TEST_FIXTURE(ArgumentParserFixture, ArgumentParser_ArgumentWithValidValuesValueNotFromSet_ParseFails)
+	TEST_FIXTURE(ArgumentParserFixture, ArgumentWithValidValuesValueNotFromSet_Parse_Fails)
 	{
 		const char* arguments[] = {
 			"defaultArg",
