@@ -38,9 +38,8 @@ struct ChannelConverterFixture
 
 	void FillSource()
 	{
-		u32 w;
-		u32 h;
-		source->GetDimensions(w, h, 0);
+		u32 w = source->GetWidth();
+		u32 h = source->GetHeight();
 		u32 numChannels = source->GetChannelCount();
 
 		f32* values = source->GetPixels(0);

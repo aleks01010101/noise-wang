@@ -6,30 +6,33 @@
 #include <cmath>
 #include <sstream>
 
-ImageData::ImageData(u32 width, u32 height, u32 channels, bool generateMipChain)
-    : m_Width(width)
-    , m_Height(height)
-    , m_Channels(channels)
+ImageData::ImageData(u32 mip0Width, u32 mip0Height, u32 numChannels, bool generateMipChain)
+    : width(mip0Width)
+    , height(mip0Height)
+    , channels(numChannels)
 {
     assert(width > 0 && height > 0);
 
+    u32 w = width;
+    u32 h = height;
+
     bool first = true;
-    while ((first || generateMipChain) && (width > 1 || height > 1))
+    while ((first || generateMipChain) && (w > 1 || h > 1))
     {
-        u32 elementCount = channels * width * height;
-        m_MipLevels.emplace_back(elementCount, 0.0f);
+        u32 elementCount = channels * w * h;
+        mipLevels.emplace_back(elementCount, 0.0f);
 
         first = false;
-        width >>= 1;
-        height >>= 1;
-        width = width > 0 ? width : 1;
-        height = height > 0 ? height : 1;
+        w >>= 1;
+        h >>= 1;
+        w = w > 0 ? w : 1;
+        h = h > 0 ? h : 1;
     }
     // Add last mip
     if (generateMipChain)
     {
         u32 elementCount = channels;
-        m_MipLevels.emplace_back(elementCount, 0.0f);
+        mipLevels.emplace_back(elementCount, 0.0f);
     }
 }
 
@@ -81,31 +84,31 @@ void ImageData::GenerateMips(u32 base)
     }
 }
 
-void ImageData::GetDimensions(u32& width, u32& height, u32 mipLevel) const
+void ImageData::GetDimensions(u32& outWidth, u32& outHeight, u32 mipLevel) const
 {
     assert(mipLevel < GetMipLevelCount());
-    width = m_Width >> mipLevel;
-    height = m_Height >> mipLevel;
+    outWidth = width >> mipLevel;
+    outHeight = height >> mipLevel;
 
-    width = width > 0 ? width : 1;
-    height = height > 0 ? height : 1;
+    outWidth = outWidth > 0 ? outWidth : 1;
+    outHeight = outHeight > 0 ? outHeight : 1;
 }
 
 u32 ImageData::GetMipLevelCount() const
 {
-    return static_cast<u32>(m_MipLevels.size());
+    return static_cast<u32>(mipLevels.size());
 }
 
 f32* ImageData::GetPixels(u32 mipLevel)
 {
     assert(mipLevel < GetMipLevelCount());
-    return &m_MipLevels[mipLevel].front();
+    return &mipLevels[mipLevel].front();
 }
 
 const f32* ImageData::GetPixels(u32 mipLevel) const
 {
     assert(mipLevel < GetMipLevelCount());
-    return &m_MipLevels[mipLevel].front();
+    return &mipLevels[mipLevel].front();
 }
 
 void ImageData::Save(const std::string& baseFileName) const
@@ -113,22 +116,22 @@ void ImageData::Save(const std::string& baseFileName) const
     u32 mipCount = GetMipLevelCount();
     if (mipCount > 1)
     {
-        u32 width = m_Width;
-        u32 height = m_Height;
+        u32 w = width;
+        u32 h = height;
         for (u32 i = 0; i < mipCount; ++i)
         {
             std::stringstream s;
             s << baseFileName << "_mip" << i << ".tga";
-            TGAFileFormat::Save(GetPixels(i), width, height, m_Channels, s.str());
+            TGAFileFormat::Save(GetPixels(i), w, h, channels, s.str());
 
-            width >>= 1;
-            height >>= 1;
-            width = width > 0 ? width : 1;
-            height = height > 0 ? height : 1;
+            w >>= 1;
+            h >>= 1;
+            w = w > 0 ? w : 1;
+            h = h > 0 ? h : 1;
         }
     }
     else
     {
-        TGAFileFormat::Save(GetPixels(0), m_Width, m_Height, m_Channels, baseFileName + ".tga");
+        TGAFileFormat::Save(GetPixels(0), width, height, channels, baseFileName + ".tga");
     }
 }
