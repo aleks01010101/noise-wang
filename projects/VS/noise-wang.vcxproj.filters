@@ -19,6 +19,12 @@
     <Filter Include="Source Files\testing">
       <UniqueIdentifier>{3583f932-1bb1-456e-8bc7-cf1d578e5bb9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\format">
+      <UniqueIdentifier>{5909c838-ca4b-4bae-acf0-b6dc1994a30a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\image">
+      <UniqueIdentifier>{fb9c8f8a-2482-4bf7-a8bb-a7e0ad67af20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp">
@@ -41,6 +47,21 @@
     </ClCompile>
     <ClCompile Include="..\..\source\RunTests.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\image\ChannelConversion.cpp">
+      <Filter>Source Files\image</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\image\ChannelConversionTests.cpp">
+      <Filter>Source Files\image</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\image\ImageData.cpp">
+      <Filter>Source Files\image</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\image\ImageDataTests.cpp">
+      <Filter>Source Files\image</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\format\TGAFileFormat.cpp">
+      <Filter>Source Files\format</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -67,6 +88,15 @@
     </ClInclude>
     <ClInclude Include="..\..\source\RunTests.hpp">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\image\ChannelConversion.hpp">
+      <Filter>Source Files\image</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\image\ImageData.hpp">
+      <Filter>Source Files\image</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\format\TGAFileFormat.hpp">
+      <Filter>Source Files\format</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

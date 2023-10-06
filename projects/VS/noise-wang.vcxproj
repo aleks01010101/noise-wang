@@ -19,6 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\source\format\TGAFileFormat.cpp" />
+    <ClCompile Include="..\..\source\image\ChannelConversion.cpp" />
+    <ClCompile Include="..\..\source\image\ChannelConversionTests.cpp" />
+    <ClCompile Include="..\..\source\image\ImageData.cpp" />
+    <ClCompile Include="..\..\source\image\ImageDataTests.cpp" />
     <ClCompile Include="..\..\source\main.cpp" />
     <ClCompile Include="..\..\source\RunTests.cpp" />
     <ClCompile Include="..\..\source\testing\Test.cpp" />
@@ -28,6 +33,9 @@
     <ClCompile Include="..\..\source\utility\ArgumentParserTests.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\source\format\TGAFileFormat.hpp" />
+    <ClInclude Include="..\..\source\image\ChannelConversion.hpp" />
+    <ClInclude Include="..\..\source\image\ImageData.hpp" />
     <ClInclude Include="..\..\source\RunTests.hpp" />
     <ClInclude Include="..\..\source\testing\Test.hpp" />
     <ClInclude Include="..\..\source\testing\TestFixture.hpp" />
