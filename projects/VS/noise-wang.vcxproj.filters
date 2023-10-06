@@ -25,6 +25,12 @@
     <Filter Include="Source Files\image">
       <UniqueIdentifier>{fb9c8f8a-2482-4bf7-a8bb-a7e0ad67af20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\generators">
+      <UniqueIdentifier>{6c3d2c03-ae72-42d4-81e6-c80fa16e6879}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\generators\simple">
+      <UniqueIdentifier>{d6ce2f28-92ec-4db8-9061-d4ddb0e09c31}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp">
@@ -63,6 +69,15 @@
     <ClCompile Include="..\..\source\format\TGAFileFormat.cpp">
       <Filter>Source Files\format</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\generators\simple\Checker.cpp">
+      <Filter>Source Files\generators\simple</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\generators\simple\Waves.cpp">
+      <Filter>Source Files\generators\simple</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utility\Random.cpp">
+      <Filter>Source Files\utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\utility\ArgumentParser.hpp">
@@ -97,6 +112,15 @@
     </ClInclude>
     <ClInclude Include="..\..\source\format\TGAFileFormat.hpp">
       <Filter>Source Files\format</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\generators\simple\Checker.hpp">
+      <Filter>Source Files\generators\simple</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\generators\simple\Waves.hpp">
+      <Filter>Source Files\generators\simple</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utility\Random.hpp">
+      <Filter>Source Files\utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

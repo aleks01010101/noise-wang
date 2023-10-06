@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\format\TGAFileFormat.cpp" />
+    <ClCompile Include="..\..\source\generators\simple\Checker.cpp" />
+    <ClCompile Include="..\..\source\generators\simple\Waves.cpp" />
     <ClCompile Include="..\..\source\image\ChannelConversion.cpp" />
     <ClCompile Include="..\..\source\image\ChannelConversionTests.cpp" />
     <ClCompile Include="..\..\source\image\ImageData.cpp" />
@@ -31,9 +33,12 @@
     <ClCompile Include="..\..\source\testing\TestSuite.cpp" />
     <ClCompile Include="..\..\source\utility\ArgumentParser.cpp" />
     <ClCompile Include="..\..\source\utility\ArgumentParserTests.cpp" />
+    <ClCompile Include="..\..\source\utility\Random.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\format\TGAFileFormat.hpp" />
+    <ClInclude Include="..\..\source\generators\simple\Checker.hpp" />
+    <ClInclude Include="..\..\source\generators\simple\Waves.hpp" />
     <ClInclude Include="..\..\source\image\ChannelConversion.hpp" />
     <ClInclude Include="..\..\source\image\ImageData.hpp" />
     <ClInclude Include="..\..\source\RunTests.hpp" />
@@ -43,6 +48,7 @@
     <ClInclude Include="..\..\source\testing\TestRunner.hpp" />
     <ClInclude Include="..\..\source\testing\TestSuite.hpp" />
     <ClInclude Include="..\..\source\utility\ArgumentParser.hpp" />
+    <ClInclude Include="..\..\source\utility\Random.hpp" />
     <ClInclude Include="..\..\source\utility\Types.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
