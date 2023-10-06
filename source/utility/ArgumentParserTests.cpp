@@ -61,7 +61,7 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 		};
 		const i32 numArguments = sizeof(arguments) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", { "" });
+		parser.AddKnownArgument("knownArg", "k", { "" }, { "" });
 		Check(parser.Parse(numArguments, arguments));
 	}
 
@@ -74,7 +74,7 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 		};
 		const i32 numArguments = sizeof(arguments) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", { "" });
+		parser.AddKnownArgument("knownArg", "k", { "" }, { "" });
 		Check(parser.Parse(numArguments, arguments));
 	}
 
@@ -88,8 +88,8 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 		};
 		const i32 numArguments = sizeof(arguments) / sizeof(const char*);
 
-		parser.AddKnownArgument("firstKnownArg", "f", { "" });
-		parser.AddKnownArgument("secondKnownArg", "s", { "" });
+		parser.AddKnownArgument("firstKnownArg", "f", { "" }, { "" });
+		parser.AddKnownArgument("secondKnownArg", "s", { "" }, { "" });
 		Check(parser.Parse(numArguments, arguments));
 	}
 
@@ -103,8 +103,8 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 		};
 		const i32 numArguments = sizeof(arguments) / sizeof(const char*);
 
-		parser.AddKnownArgument("firstKnownArg", "f", { "" });
-		parser.AddKnownArgument("secondKnownArg", "s", { "" });
+		parser.AddKnownArgument("firstKnownArg", "f", { "" }, { "" });
+		parser.AddKnownArgument("secondKnownArg", "s", { "" }, { "" });
 		Check(parser.Parse(numArguments, arguments));
 	}
 
@@ -130,7 +130,7 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 		};
 		const i32 numArguments = sizeof(arguments) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", { "" });
+		parser.AddKnownArgument("knownArg", "k", { "" }, { "" });
 		Check(!parser.Parse(numArguments, arguments));
 	}
 
@@ -144,7 +144,7 @@ TEST_SUITE(ArgumentParser_ArgumentNameParsing)
 		};
 		const i32 numArguments = sizeof(arguments) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", { "" });
+		parser.AddKnownArgument("knownArg", "k", { "" }, { "" });
 		Check(!parser.Parse(numArguments, arguments));
 	}
 }
@@ -157,7 +157,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", {});
+		parser.AddKnownArgument("knownArg", "k", {}, { "" });
 		parser.Parse(numArguments, kDefaultArgument);
 
 		CheckEqual(0ull, parser.GetValue("knownArg"));
@@ -168,7 +168,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", { "" });
+		parser.AddKnownArgument("knownArg", "k", { "" }, { "" });
 		parser.Parse(numArguments, kDefaultArgument);
 
 		CheckEqual(0ull, parser.GetValue("knownArg"));
@@ -179,7 +179,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", { "foo", "bar" });
+		parser.AddKnownArgument("knownArg", "k", { "foo", "bar" }, { "", "" });
 		parser.Parse(numArguments, kDefaultArgument);
 
 		CheckEqual(0ull, parser.GetValue("knownArg"));
@@ -190,7 +190,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", {}, 123ull);
+		parser.AddKnownArgument("knownArg", "k", {}, { "" }, 123ull);
 		parser.Parse(numArguments, kDefaultArgument);
 
 		CheckEqual(123ull, parser.GetValue("knownArg"));
@@ -201,7 +201,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", { "" }, 1ull);
+		parser.AddKnownArgument("knownArg", "k", { "" }, { "" }, 1ull);
 		parser.Parse(numArguments, kDefaultArgument);
 
 		CheckEqual(1ull, parser.GetValue("knownArg"));
@@ -212,7 +212,7 @@ TEST_SUITE(ArgumentParser_ArgumentValueDefaults)
 	{
 		const i32 numArguments = sizeof(kDefaultArgument) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", { "foo", "bar" }, 1ull);
+		parser.AddKnownArgument("knownArg", "k", { "foo", "bar" }, { "", "" }, 1ull);
 		parser.Parse(numArguments, kDefaultArgument);
 
 		CheckEqual(1ull, parser.GetValue("knownArg"));
@@ -232,7 +232,7 @@ TEST_SUITE(ArgumentParser_SpecifiedArgumentValue)
 		};
 		const i32 numArguments = sizeof(arguments) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", {});
+		parser.AddKnownArgument("knownArg", "k", {}, { "" });
 		Check(parser.Parse(numArguments, arguments));
 		CheckEqual(987654321ull, parser.GetValue("knownArg"));
 	}
@@ -247,7 +247,7 @@ TEST_SUITE(ArgumentParser_SpecifiedArgumentValue)
 		};
 		const i32 numArguments = sizeof(arguments) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", { "foo", "bar" });
+		parser.AddKnownArgument("knownArg", "k", { "foo", "bar" }, { "", "" });
 		Check(parser.Parse(numArguments, arguments));
 		CheckEqual(1ull, parser.GetValue("knownArg"));
 	}
@@ -262,7 +262,7 @@ TEST_SUITE(ArgumentParser_SpecifiedArgumentValue)
 		};
 		const i32 numArguments = sizeof(arguments) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", {});
+		parser.AddKnownArgument("knownArg", "k", {}, { "" });
 		Check(!parser.Parse(numArguments, arguments));
 	}
 
@@ -276,7 +276,7 @@ TEST_SUITE(ArgumentParser_SpecifiedArgumentValue)
 		};
 		const i32 numArguments = sizeof(arguments) / sizeof(const char*);
 
-		parser.AddKnownArgument("knownArg", "k", { "foo", "bar" });
+		parser.AddKnownArgument("knownArg", "k", { "foo", "bar" }, { "", "" });
 		Check(!parser.Parse(numArguments, arguments));
 	}
 }

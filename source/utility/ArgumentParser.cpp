@@ -14,16 +14,19 @@ u64 ArgumentParser::GetValue(const std::string& name) const
 	return argumentValues[it - begin];
 }
 
-void ArgumentParser::AddKnownArgument(const std::string& name, const std::string& shortName, const ValidValues& knownValues)
+void ArgumentParser::AddKnownArgument(const std::string& name, const std::string& shortName, const ValidValues& knownValues,
+	const Descriptions& parameterDescriptions)
 {
-	AddKnownArgument(name, shortName, knownValues, 0);
+	AddKnownArgument(name, shortName, knownValues, parameterDescriptions, 0);
 }
 
-void ArgumentParser::AddKnownArgument(const std::string& name, const std::string& shortName, const ValidValues& knownValues, u64 defaultValue)
+void ArgumentParser::AddKnownArgument(const std::string& name, const std::string& shortName, const ValidValues& knownValues,
+	const Descriptions& parameterDescriptions, u64 defaultValue)
 {
 	argumentNames.push_back(name);
 	shortArgumentNames.push_back(shortName);
 	validValues.push_back(knownValues);
+	descriptions.push_back(parameterDescriptions);
 	argumentValues.push_back(defaultValue);
 }
 
@@ -53,6 +56,32 @@ bool ArgumentParser::Parse(i32 argc, const char** argv)
 	}
 
 	return true;
+}
+
+void ArgumentParser::PrintOptions() const
+{
+	for (u64 i = 0, n = argumentNames.size(); i < n; ++i)
+	{
+		std::cout << "  -" << shortArgumentNames[i] << ", --" << argumentNames[i] << ": " << descriptions[i][0];
+		u64 numChoices = validValues[i].size();
+		const bool offersChoice = numChoices > 1;
+		u64 defaultValue = argumentValues[i];
+		std::cout << " (default: ";
+		if (offersChoice)
+			std::cout << validValues[i][defaultValue];
+		else
+			std::cout << defaultValue;
+		std::cout << ")";
+
+		if (offersChoice)
+		{
+			std::cout << ". Valid values: " << std::endl;
+			for (u64 j = 0; j < numChoices; ++j)
+				std::cout << "    " << validValues[i][j] << ": " << descriptions[i][j + 1] << std::endl;
+		}
+		else
+			std::cout << std::endl;
+	}
 }
 
 u64 ArgumentParser::Find(const char* argument) const
