@@ -2,6 +2,9 @@
 
 #include "RunTests.hpp"
 
+#include "generators/Interpolator.hpp"
+#include "generators/noise/ValueNoise.hpp"
+#include "generators/noise/WaveletNoise.hpp"
 #include "generators/noise/WhiteNoise.hpp"
 #include "generators/noise/WorleyNoise.hpp"
 #include "generators/simple/Checker.hpp"
@@ -21,6 +24,10 @@ static constexpr u64 kDefaultTileHeight = 64;
 static constexpr u64 kDefaultMinPointsPerCell = 2;
 static constexpr u64 kDefaultMaxPointsPerCell = 2;
 static constexpr u64 kDefaultCellSize = 32;
+
+// Lattice defaults
+static constexpr u64 kDefaultLatticeWidth = 32;
+static constexpr u64 kDefaultLatticeHeight = 32;
 
 // Image defaults
 static constexpr u64 kDefaultWidth = 1024;
@@ -80,6 +87,26 @@ static void generateWhiteNoise(TilingMode mode, ImageData& result)
     WhiteNoise::Generate(mode, result);
 }
 
+static void generateWavelet(TilingMode mode, const ArgumentParser& parser, ImageData& result)
+{
+    WaveletNoise<FifthOrderInterpolator>::Parameters parameters;
+    parameters.latticeWidth = parser.GetValueAs<u32>("lattice-width");
+    parameters.latticeHeight = parser.GetValueAs<u32>("lattice-height");
+
+    WaveletNoise<FifthOrderInterpolator>::Generate(mode, parameters, result);
+}
+
+static void generateValue(TilingMode mode, const ArgumentParser& parser, ImageData& result)
+{
+    ValueNoise<LinearInterpolator>::Parameters parameters;
+    parameters.latticeWidth = parser.GetValueAs<u32>("lattice-width");
+    parameters.latticeHeight = parser.GetValueAs<u32>("lattice-height");
+    parameters.rangeMin = 0.0f;
+    parameters.rangeMax = 1.0f;
+
+    ValueNoise<LinearInterpolator>::Generate(mode, parameters, result);
+}
+
 i32 main(i32 argc, const char** argv)
 {
     ArgumentParser arguments;
@@ -87,12 +114,14 @@ i32 main(i32 argc, const char** argv)
     arguments.AddKnownArgument("run-tests", "rt", { "" }, {"run unit tests"});
     arguments.AddKnownArgument("help", "h", { "" }, { "print options" });
 
-    arguments.AddKnownArgument("generator", "g", { "checker", "worley", "white" }, {
+    arguments.AddKnownArgument("generator", "g", { "checker", "worley", "white", "wavelet", "value" }, {
         "select image generation algorithm",
 
         "generate checker pattern with random tile brightness",
         "generate cellular pattern using Worley noise",
         "generate white noise",
+        "generate wavelet noise",
+        "generate value noise",
         });
     arguments.AddKnownArgument("tiling", "t", { "simple", "wang" }, {
         "select image tiling algorithm",
@@ -113,6 +142,10 @@ i32 main(i32 argc, const char** argv)
     arguments.AddKnownArgument("worley-min-points-per-cell", "minppc", {}, { "minimum number of points per cell for Worley noise" }, kDefaultMinPointsPerCell);
     arguments.AddKnownArgument("worley-max-points-per-cell", "maxppc", {}, { "maximum number of points per cell for Worley noise" }, kDefaultMaxPointsPerCell);
     arguments.AddKnownArgument("worley-cell-size", "cs", {}, { "size of a single cell for Worley noise" }, kDefaultCellSize);
+
+    // Lattice parameters
+    arguments.AddKnownArgument("lattice-width", "lw", {}, { "width of the lattice for lattice-based noises" }, kDefaultLatticeWidth);
+    arguments.AddKnownArgument("lattice-height", "lh", {}, { "height of the lattice for lattice-based noises" }, kDefaultLatticeHeight);
 
     // Image parameters
     arguments.AddKnownArgument("width", "w", {}, { "image width. Must be greater than 0" }, kDefaultWidth);
@@ -138,6 +171,8 @@ i32 main(i32 argc, const char** argv)
         kChecker,
         kWorley,
         kWhite,
+        kWavelet,
+        kValue,
     };
 
     u32 numChannels = 1;
@@ -166,6 +201,12 @@ i32 main(i32 argc, const char** argv)
         break;
     case Generator::kWhite:
         generateWhiteNoise(tiling, *generated);
+        break;
+    case Generator::kWavelet:
+        generateWavelet(tiling, arguments, *generated);
+        break;
+    case Generator::kValue:
+        generateValue(tiling, arguments, *generated);
         break;
     };
 

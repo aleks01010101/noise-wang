@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\format\TGAFileFormat.cpp" />
+    <ClCompile Include="..\..\source\generators\noise\ValueNoise.cpp" />
+    <ClCompile Include="..\..\source\generators\noise\WaveletNoise.cpp" />
     <ClCompile Include="..\..\source\generators\noise\WhiteNoise.cpp" />
     <ClCompile Include="..\..\source\generators\noise\WorleyNoise.cpp" />
     <ClCompile Include="..\..\source\generators\simple\Checker.cpp" />
@@ -38,7 +40,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\format\TGAFileFormat.hpp" />
+    <ClInclude Include="..\..\source\generators\Interpolator.hpp" />
     <ClInclude Include="..\..\source\generators\noise\IndexProviders.hpp" />
+    <ClInclude Include="..\..\source\generators\noise\ValueNoise.hpp" />
+    <ClInclude Include="..\..\source\generators\noise\WaveletNoise.hpp" />
     <ClInclude Include="..\..\source\generators\noise\WhiteNoise.hpp" />
     <ClInclude Include="..\..\source\generators\noise\WorleyNoise.hpp" />
     <ClInclude Include="..\..\source\generators\simple\Checker.hpp" />

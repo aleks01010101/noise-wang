@@ -1,8 +1,7 @@
 #pragma once
 
-#include <vector>
-
-#include "../../Vector2.hpp"
+#include "generators/TilingMode.hpp"
+#include "utility/Types.hpp"
 
 class ImageData;
 
@@ -16,21 +15,10 @@ public:
         u32 latticeHeight;
     };
     
-public:
-    WaveletNoise();
-    ~WaveletNoise();
-
-public:
-    void GenerateNoTiling(ImageData& data) const;
-    void GenerateSimple(ImageData& data) const;
-    void GenerateWang(ImageData& data) const;
-    void GenerateCorner(ImageData& data) const;
-
-    void SetParameters(const Parameters& value) { m_Parameters = value; }
+    static void Generate(TilingMode mode, const Parameters& parameters, ImageData& data);
 
 private:
-    void Generate(ImageData& data, ImageData& baseNoise) const;
-
-private:
-    Parameters m_Parameters;
+    static void GenerateSimple(const Parameters& parameters, ImageData& data);
+    static void GenerateWang(const Parameters& parameters, ImageData& data);
+    static void Generate(const Parameters& parameters, ImageData& data, ImageData& baseNoise);
 };

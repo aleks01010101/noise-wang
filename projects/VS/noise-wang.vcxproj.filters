@@ -84,6 +84,12 @@
     <ClCompile Include="..\..\source\generators\noise\WhiteNoise.cpp">
       <Filter>Source Files\generators\noise</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\generators\noise\WaveletNoise.cpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\generators\noise\ValueNoise.cpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\utility\ArgumentParser.hpp">
@@ -135,6 +141,15 @@
       <Filter>Source Files\generators\noise</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\generators\noise\WhiteNoise.hpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\generators\noise\WaveletNoise.hpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\generators\Interpolator.hpp">
+      <Filter>Source Files\generators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\generators\noise\ValueNoise.hpp">
       <Filter>Source Files\generators\noise</Filter>
     </ClInclude>
   </ItemGroup>

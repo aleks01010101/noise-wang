@@ -1,8 +1,9 @@
 #pragma once
 
-#include <vector>
+#include "generators/TilingMode.hpp"
+#include "utility/Types.hpp"
 
-#include "../../Types.hpp"
+#include <vector>
 
 class ImageData;
 
@@ -17,22 +18,11 @@ public:
         f32 rangeMin;
         f32 rangeMax;
     };
-    
-public:
-    ValueNoise();
-    ~ValueNoise();
 
-public:
-    void GenerateNoTiling(ImageData& data) const;
-    void GenerateSimple(ImageData& data) const;
-    void GenerateWang(ImageData& data) const;
-    void GenerateCorner(ImageData& data) const;
-
-    void SetParameters(const Parameters& value) { m_Parameters = value; }
+    static void Generate(TilingMode mode, const Parameters& parameters, ImageData& data);
 
 private:
-    void Generate(ImageData& data, const std::vector<std::vector<f32>>& lattice) const;
-
-private:
-    Parameters m_Parameters;
+    static void GenerateSimple(const Parameters& parameters, ImageData& data);
+    static void GenerateWang(const Parameters& parameters, ImageData& data);
+    static void Generate(const std::vector<std::vector<f32>>& lattice, const Parameters& parameters, ImageData& data);
 };
