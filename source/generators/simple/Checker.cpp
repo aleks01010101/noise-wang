@@ -4,9 +4,59 @@
 #include "utility/Random.hpp"
 
 #include <cassert>
+#include <iostream>
 #include <vector>
 
-void Checker::Generate(ImageData& data) const
+void Checker::Generate(TilingMode mode, const Parameters& parameters, ImageData& data)
+{
+    switch (mode)
+    {
+    case TilingMode::kSimple:
+        GenerateSimple(parameters, data);
+        break;
+    case TilingMode::kWang:
+        GenerateWang(parameters, data);
+        break;
+    }
+}
+
+void Checker::GenerateSimple(const Parameters& parameters, ImageData& data)
+{
+    u32 w = data.GetWidth();
+    u32 h = data.GetHeight();
+    if (w % parameters.tileWidth != 0)
+    {
+        std::cerr << "Image width should be a multiple of the checker tile width." << std::endl;
+        return;
+    }
+    if (h % parameters.tileHeight != 0)
+    {
+        std::cerr << "Image height should be a multiple of the checker tile height." << std::endl;
+        return;
+    }
+    Generate(parameters, data);
+}
+
+void Checker::GenerateWang(const Parameters& parameters, ImageData& data)
+{
+    u32 w = data.GetWidth();
+    u32 h = data.GetHeight();
+    w >>= 2;
+    h >>= 2;
+    if (w % parameters.tileWidth != 0)
+    {
+        std::cerr << "Image width should be a multiple of 4x checker tile width for wang tiles." << std::endl;
+        return;
+    }
+    if (h % parameters.tileHeight != 0)
+    {
+        std::cerr << "Image height should be a multiple of 4x checker tile height for wang tiles." << std::endl;
+        return;
+    }
+    Generate(parameters, data);
+}
+
+void Checker::Generate(const Parameters& parameters, ImageData& data)
 {
     u32 mips = data.GetMipLevelCount();
 
@@ -80,40 +130,4 @@ void Checker::Generate(ImageData& data) const
             break;
         }
     }
-}
-
-void Checker::GenerateNoTiling(ImageData& data) const
-{
-    Generate(data);
-}
-
-void Checker::GenerateSimple(ImageData& data) const
-{
-    u32 w = data.GetWidth();
-    u32 h = data.GetHeight();
-    assert(w % parameters.tileWidth == 0);
-    assert(h % parameters.tileHeight == 0);
-    Generate(data);
-}
-
-void Checker::GenerateWang(ImageData& data) const
-{
-    u32 w = data.GetWidth();
-    u32 h = data.GetHeight();
-    w >>= 2;
-    h >>= 2;
-    assert(w % parameters.tileWidth == 0);
-    assert(h % parameters.tileHeight == 0);
-    Generate(data);
-}
-
-void Checker::GenerateCorner(ImageData& data) const
-{
-    u32 w = data.GetWidth();
-    u32 h = data.GetHeight();
-    w >>= 2;
-    h >>= 2;
-    assert(w % parameters.tileWidth == 0);
-    assert(h % parameters.tileHeight == 0);
-    Generate(data);
 }

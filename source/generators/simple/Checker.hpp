@@ -1,10 +1,12 @@
 #pragma once
 
+#include "generators/TilingMode.hpp"
+
 #include "utility/Types.hpp"
 
 class ImageData;
 
-class Checker
+class Checker final
 {
 public:
     struct Parameters
@@ -17,17 +19,10 @@ public:
         f32 brightMax;
     };
 
-public:
-    void GenerateNoTiling(ImageData& data) const;
-    void GenerateSimple(ImageData& data) const;
-    void GenerateWang(ImageData& data) const;
-    void GenerateCorner(ImageData& data) const;
-
-    void SetParameters(const Parameters& value) { parameters = value; }
+    static void Generate(TilingMode mode, const Parameters& parameters, ImageData& data);
 
 private:
-    void Generate(ImageData& data) const;
-
-private:
-    Parameters parameters;
+    static void GenerateSimple(const Parameters& parameters, ImageData& data);
+    static void GenerateWang(const Parameters& parameters, ImageData& data);
+    static void Generate(const Parameters& parameters, ImageData& data);
 };

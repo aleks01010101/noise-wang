@@ -33,7 +33,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\source\main.cpp">
+    <ClCompile Include="..\..\source\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\utility\ArgumentParser.cpp">
@@ -70,9 +70,6 @@
       <Filter>Source Files\format</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\generators\simple\Checker.cpp">
-      <Filter>Source Files\generators\simple</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\generators\simple\Waves.cpp">
       <Filter>Source Files\generators\simple</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\utility\Random.cpp">
@@ -116,11 +113,11 @@
     <ClInclude Include="..\..\source\generators\simple\Checker.hpp">
       <Filter>Source Files\generators\simple</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\generators\simple\Waves.hpp">
-      <Filter>Source Files\generators\simple</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\utility\Random.hpp">
       <Filter>Source Files\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\generators\TilingMode.hpp">
+      <Filter>Source Files\generators</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
