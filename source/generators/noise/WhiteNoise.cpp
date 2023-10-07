@@ -1,9 +1,9 @@
-#include <cstring>
-#include <vector>
-
 #include "WhiteNoise.hpp"
 
-#include "../../ImageData.hpp"
+#include "image/ImageData.hpp"
+
+#include <cstring>
+#include <vector>
 
 static std::vector<u32> S;
 static std::vector<u32> K;
@@ -45,16 +45,7 @@ void Initialize()
     }
 }
 
-void GenerateWhiteNoise(f32 x, f32 y, f32 z, f32 w, u32 key, u32* result)
-{
-    u32 ux = *reinterpret_cast<u32*>(&x);
-    u32 uy = *reinterpret_cast<u32*>(&y);
-    u32 uz = *reinterpret_cast<u32*>(&z);
-    u32 uw = *reinterpret_cast<u32*>(&w);
-    GenerateWhiteNoise(ux, uy, uz, uw, key, result);
-}
-
-void GenerateWhiteNoise(u32 x, u32 y, u32 z, u32 w, u32 key, u32* result)
+static void GenerateWhiteNoise(u32 x, u32 y, u32 z, u32 w, u32 key, u32* result)
 {
     Initialize();
 
@@ -123,20 +114,25 @@ void GenerateWhiteNoise(u32 x, u32 y, u32 z, u32 w, u32 key, u32* result)
     result[3] = D;
 }
 
-static inline f32 ToFloat(u32 value)
+static f32 toFloat(u32 value)
 {
-    return static_cast<f32>(value) / static_cast<f32>(UINT32_MAX);
+    return static_cast<f32>(static_cast<f64>(value) / static_cast<f64>(UINT32_MAX));
 }
 
-WhiteNoise::WhiteNoise()
+void WhiteNoise::Generate(TilingMode mode, ImageData& data)
 {
+    switch (mode)
+    {
+    case TilingMode::kSimple:
+        GenerateSimple(data);
+        break;
+    case TilingMode::kWang:
+        GenerateWang(data);
+        break;
+    }
 }
 
-WhiteNoise::~WhiteNoise()
-{
-}
-
-void WhiteNoise::GenerateNoTiling(ImageData& data) const
+void WhiteNoise::GenerateSimple(ImageData& data)
 {
     const u32 mips = data.GetMipLevelCount();
     for (u32 mip = 0; mip < mips; ++mip)
@@ -154,24 +150,14 @@ void WhiteNoise::GenerateNoTiling(ImageData& data) const
             for (u32 x = 0; x < w; ++x)
             {
                 GenerateWhiteNoise(x, y, 0, 0, 0, buffer);
-                pixels[index] = ToFloat(buffer[0]);
+                pixels[index] = toFloat(buffer[0]);
                 ++index;
             }
         }
     }
 }
 
-void WhiteNoise::GenerateSimple(ImageData& data) const
+void WhiteNoise::GenerateWang(ImageData& data)
 {
-    GenerateNoTiling(data);
-}
-
-void WhiteNoise::GenerateWang(ImageData& data) const
-{
-    GenerateNoTiling(data);
-}
-
-void WhiteNoise::GenerateCorner(ImageData& data) const
-{
-    GenerateNoTiling(data);
+    GenerateSimple(data);
 }

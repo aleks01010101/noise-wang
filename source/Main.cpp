@@ -2,6 +2,7 @@
 
 #include "RunTests.hpp"
 
+#include "generators/noise/WhiteNoise.hpp"
 #include "generators/noise/WorleyNoise.hpp"
 #include "generators/simple/Checker.hpp"
 #include "image/ChannelConversion.hpp"
@@ -25,13 +26,13 @@ static constexpr u64 kDefaultCellSize = 32;
 static constexpr u64 kDefaultWidth = 1024;
 static constexpr u64 kDefaultHeight = 1024;
 
-void printOptions(const ArgumentParser& parser)
+static void printOptions(const ArgumentParser& parser)
 {
     std::cout << "Options:" << std::endl;
     parser.PrintOptions();
 }
 
-ImageData* createImage(const ArgumentParser& parser, u32 numChannels)
+static ImageData* createImage(const ArgumentParser& parser, u32 numChannels)
 {
     u32 w = parser.GetValueAs<u32>("width");
     u32 h = parser.GetValueAs<u32>("height");
@@ -42,7 +43,7 @@ ImageData* createImage(const ArgumentParser& parser, u32 numChannels)
     return new ImageData(w, h, numChannels, parser.IsEnabled("mipmaps"));
 }
 
-void generateChecker(TilingMode mode, const ArgumentParser& parser, ImageData& result)
+static void generateChecker(TilingMode mode, const ArgumentParser& parser, ImageData& result)
 {
     Checker::Parameters parameters;
     parameters.brightMax = parser.GetValueAs<f32>("checker-bright-max") / 255.0f;
@@ -55,7 +56,7 @@ void generateChecker(TilingMode mode, const ArgumentParser& parser, ImageData& r
     Checker::Generate(mode, parameters, result);
 }
 
-void generateWorley(TilingMode mode, const ArgumentParser& parser, ImageData& result)
+static void generateWorley(TilingMode mode, const ArgumentParser& parser, ImageData& result)
 {
     WorleyNoise::Parameters parameters;
 
@@ -74,6 +75,11 @@ void generateWorley(TilingMode mode, const ArgumentParser& parser, ImageData& re
     WorleyNoise::Generate(mode, parameters, result);
 }
 
+static void generateWhiteNoise(TilingMode mode, ImageData& result)
+{
+    WhiteNoise::Generate(mode, result);
+}
+
 i32 main(i32 argc, const char** argv)
 {
     ArgumentParser arguments;
@@ -81,11 +87,12 @@ i32 main(i32 argc, const char** argv)
     arguments.AddKnownArgument("run-tests", "rt", { "" }, {"run unit tests"});
     arguments.AddKnownArgument("help", "h", { "" }, { "print options" });
 
-    arguments.AddKnownArgument("generator", "g", { "checker", "worley" }, {
+    arguments.AddKnownArgument("generator", "g", { "checker", "worley", "white" }, {
         "select image generation algorithm",
 
         "generate checker pattern with random tile brightness",
-        "generate cellular pattern using Worley noise"
+        "generate cellular pattern using Worley noise",
+        "generate white noise",
         });
     arguments.AddKnownArgument("tiling", "t", { "simple", "wang" }, {
         "select image tiling algorithm",
@@ -130,6 +137,7 @@ i32 main(i32 argc, const char** argv)
     {
         kChecker,
         kWorley,
+        kWhite,
     };
 
     u32 numChannels = 1;
@@ -155,6 +163,9 @@ i32 main(i32 argc, const char** argv)
         break;
     case Generator::kWorley:
         generateWorley(tiling, arguments, *generated);
+        break;
+    case Generator::kWhite:
+        generateWhiteNoise(tiling, *generated);
         break;
     };
 

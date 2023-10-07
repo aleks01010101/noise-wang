@@ -1,21 +1,16 @@
 #pragma once
 
-#include "../../Types.hpp"
-
-void GenerateWhiteNoise(f32 x, f32 y, f32 z, f32 w, u32 key, u32* result);
-void GenerateWhiteNoise(u32 x, u32 y, u32 z, u32 w, u32 key, u32* result);
+#include "generators/TilingMode.hpp"
+#include "utility/Types.hpp"
 
 class ImageData;
 
 class WhiteNoise
 {
 public:
-    WhiteNoise();
-    ~WhiteNoise();
+    static void Generate(TilingMode mode, ImageData& data);
 
-public:
-    void GenerateNoTiling(ImageData& data) const;
-    void GenerateSimple(ImageData& data) const;
-    void GenerateWang(ImageData& data) const;
-    void GenerateCorner(ImageData& data) const;
+private:
+    static void GenerateSimple(ImageData& data);
+    static void GenerateWang(ImageData& data);
 };

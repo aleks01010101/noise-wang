@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\format\TGAFileFormat.cpp" />
+    <ClCompile Include="..\..\source\generators\noise\WhiteNoise.cpp" />
     <ClCompile Include="..\..\source\generators\noise\WorleyNoise.cpp" />
     <ClCompile Include="..\..\source\generators\simple\Checker.cpp" />
     <ClCompile Include="..\..\source\image\ChannelConversion.cpp" />
@@ -38,6 +39,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\source\format\TGAFileFormat.hpp" />
     <ClInclude Include="..\..\source\generators\noise\IndexProviders.hpp" />
+    <ClInclude Include="..\..\source\generators\noise\WhiteNoise.hpp" />
     <ClInclude Include="..\..\source\generators\noise\WorleyNoise.hpp" />
     <ClInclude Include="..\..\source\generators\simple\Checker.hpp" />
     <ClInclude Include="..\..\source\generators\TilingMode.hpp" />
