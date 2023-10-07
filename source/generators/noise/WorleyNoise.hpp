@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../../Types.hpp"
+#include "generators/TilingMode.hpp"
+#include "utility/Types.hpp"
 
 class ImageData;
 
-class WorleyNoise
+class WorleyNoise final
 {
 public:
     struct Parameters
@@ -21,23 +22,13 @@ public:
         f32 gMul;
         f32 bMul;
     };
-    
-public:
-    WorleyNoise();
-    ~WorleyNoise();
 
-public:
-    void GenerateNoTiling(ImageData& data) const;
-    void GenerateSimple(ImageData& data) const;
-    void GenerateWang(ImageData& data) const;
-    void GenerateCorner(ImageData& data) const;
-
-    void SetParameters(const Parameters& value) { m_Parameters = value; }
+    static void Generate(TilingMode mode, const Parameters& parameters, ImageData& data);
 
 private:
+    static void GenerateSimple(const Parameters& parameters, ImageData& data);
+    static void GenerateWang(const Parameters& parameters, ImageData& data);
+
     template<class IndexProvider>
-    void Generate(const IndexProvider& indexProvider, ImageData& data) const;
-
-private:
-    Parameters m_Parameters;
+    static void Generate(const IndexProvider& indexProvider, const Parameters& parameters, ImageData& data);
 };

@@ -1,20 +1,13 @@
-#include <cassert>
-#include <algorithm>
-
 #include "WorleyNoise.hpp"
-#include "SpaceConvolutionIndexProvider.hpp"
 
-#include "../../ImageData.hpp"
-#include "../../Random.hpp"
-#include "../../Vector3.hpp"
+#include "IndexProviders.hpp"
 
-WorleyNoise::WorleyNoise()
-{
-}
+#include "image/ImageData.hpp"
+#include "utility/Random.hpp"
 
-WorleyNoise::~WorleyNoise()
-{
-}
+#include <cassert>
+#include <cmath>
+#include <algorithm>
 
 struct Result
 {
@@ -48,18 +41,18 @@ struct NoiseSampler
         u32 index = parameters.cellIndexOffset + indexProvider(i, j);
         Random generator(index);
 
-        u32 pointCount = generator.uniform(parameters.minPointsPerCell, parameters.maxPointsPerCell);
+        u32 pointCount = generator.Uniform(parameters.minPointsPerCell, parameters.maxPointsPerCell);
 
         for (u32 point = 0; point < pointCount; ++point)
         {
-            f32 xi = x - generator.uniform();
-            f32 yi = y - generator.uniform();
+            f32 xi = x - generator.Uniform();
+            f32 yi = y - generator.Uniform();
 
             result.update(xi * xi + yi * yi, index + point * parameters.cellsPerRow * parameters.cellsPerRow);
         }
     }
 
-    vec3f32 operator ()(const IndexProvider& indexProvider, const WorleyNoise::Parameters& parameters, f32 x, f32 y)
+    void operator ()(const IndexProvider& indexProvider, const WorleyNoise::Parameters& parameters, f32 x, f32 y, f32& outR, f32& outG, f32& outB)
     {
         f32 scaledX = x / parameters.cellSize;
         f32 scaledY = y / parameters.cellSize;
@@ -80,26 +73,46 @@ struct NoiseSampler
         }
 
         Random generator(result.i0);
-        float r = generator.uniform() * parameters.rMul + parameters.rAdd;
-        float g = generator.uniform() * parameters.gMul + parameters.gAdd;
-        float b = generator.uniform() * parameters.bMul + parameters.bAdd;
-
-        vec3f32 color(r, g, b);
-        color *= (1.0f - result.f0 / result.f1);
-
-        return color;
+        float multiplier = 1.0f - result.f0 / result.f1;
+        outR = fmaf(generator.Uniform(), parameters.rMul, parameters.rAdd) * multiplier;
+        outG = fmaf(generator.Uniform(), parameters.gMul, parameters.gAdd) * multiplier;
+        outB = fmaf(generator.Uniform(), parameters.bMul, parameters.bAdd) * multiplier;
     }
 };
 
+void WorleyNoise::Generate(TilingMode mode, const Parameters& parameters, ImageData& data)
+{
+    switch (mode)
+    {
+    case TilingMode::kSimple:
+        GenerateSimple(parameters, data);
+        break;
+    case TilingMode::kWang:
+        GenerateWang(parameters, data);
+        break;
+    }
+}
+
+void WorleyNoise::GenerateSimple(const Parameters& parameters, ImageData& data)
+{
+    SimpleTilingIndexProvider indexProvider(parameters.cellsPerRow);
+    Generate(indexProvider, parameters, data);
+}
+
+void WorleyNoise::GenerateWang(const Parameters& parameters, ImageData& data)
+{
+    WangTilingIndexProvider indexProvider(parameters.cellsPerRow);
+    Generate(indexProvider, parameters, data);
+}
+
 template<class IndexProvider>
-void WorleyNoise::Generate(const IndexProvider& indexProvider, ImageData& data) const
+void WorleyNoise::Generate(const IndexProvider& indexProvider, const Parameters& parameters, ImageData& data)
 {
     NoiseSampler<IndexProvider> sampler;
 
     u32 mips = data.GetMipLevelCount();
-    u32 width;
-    u32 height;
-    data.GetDimensions(width, height, 0);
+    u32 width = data.GetWidth();
+    u32 height = data.GetHeight();
     for (u32 mip = 0; mip < mips; ++mip)
     {
         u32 w;
@@ -112,41 +125,20 @@ void WorleyNoise::Generate(const IndexProvider& indexProvider, ImageData& data) 
         f32* pixels = data.GetPixels(mip);
 
         u32 index = 0;
+        f32 r;
+        f32 g;
+        f32 b;
         for (u32 y = 0; y < h; ++y)
         {
             f32 fy = static_cast<f32>(y) * yScale;
             for (u32 x = 0; x < w; ++x)
             {
-                vec3f32 result = sampler(indexProvider, m_Parameters, static_cast<f32>(x) * xScale, fy);
-                pixels[index++] = result.x;
-                pixels[index++] = result.y;
-                pixels[index++] = result.z;
-                pixels[index++] = 1.0;
+                sampler(indexProvider, parameters, static_cast<f32>(x) * xScale, fy, r, g, b);
+                pixels[index++] = r;
+                pixels[index++] = g;
+                pixels[index++] = b;
+                pixels[index++] = 1.0f;
             }
         }
     }
-}
-
-void WorleyNoise::GenerateNoTiling(ImageData& data) const
-{
-    NoTilingIndexProvider indexProvider(m_Parameters.cellsPerRow);
-    Generate(indexProvider, data);
-}
-
-void WorleyNoise::GenerateSimple(ImageData& data) const
-{
-    SimpleTilingIndexProvider indexProvider(m_Parameters.cellsPerRow);
-    Generate(indexProvider, data);
-}
-
-void WorleyNoise::GenerateWang(ImageData& data) const
-{
-    WangTilingIndexProvider indexProvider(m_Parameters.cellsPerRow);
-    Generate(indexProvider, data);
-}
-
-void WorleyNoise::GenerateCorner(ImageData& data) const
-{
-    WangTilingIndexProvider indexProvider(m_Parameters.cellsPerRow);
-    Generate(indexProvider, data);
 }

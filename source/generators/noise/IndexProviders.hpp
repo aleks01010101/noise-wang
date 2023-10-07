@@ -1,23 +1,6 @@
 #pragma once
 
-#include "../../Types.hpp"
-
-struct NoTilingIndexProvider
-{
-    NoTilingIndexProvider(u32 cellsPerRow) :
-        multiplier(cellsPerRow * 2),
-        mask(multiplier - 1)
-    {}
-
-    inline u32 operator ()(i32 i, i32 j) const
-    {
-        return static_cast<u32>(i) + static_cast<u32>(j) * multiplier;
-    }
-
-private:
-    u32 multiplier;
-    u32 mask;
-};
+#include "utility/Types.hpp"
 
 struct SimpleTilingIndexProvider
 {

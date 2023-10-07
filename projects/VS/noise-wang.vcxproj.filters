@@ -31,6 +31,9 @@
     <Filter Include="Source Files\generators\simple">
       <UniqueIdentifier>{d6ce2f28-92ec-4db8-9061-d4ddb0e09c31}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\generators\noise">
+      <UniqueIdentifier>{d4f7a766-41da-464f-81dd-502960846786}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\Main.cpp">
@@ -75,6 +78,9 @@
     <ClCompile Include="..\..\source\utility\Random.cpp">
       <Filter>Source Files\utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\generators\noise\WorleyNoise.cpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\utility\ArgumentParser.hpp">
@@ -118,6 +124,12 @@
     </ClInclude>
     <ClInclude Include="..\..\source\generators\TilingMode.hpp">
       <Filter>Source Files\generators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\generators\noise\IndexProviders.hpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\generators\noise\WorleyNoise.hpp">
+      <Filter>Source Files\generators\noise</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
