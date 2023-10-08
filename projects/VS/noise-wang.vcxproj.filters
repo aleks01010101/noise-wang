@@ -90,6 +90,12 @@
     <ClCompile Include="..\..\source\generators\noise\ValueNoise.cpp">
       <Filter>Source Files\generators\noise</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\generators\noise\ModifiedNoise.cpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\generators\noise\PerlinNoise.cpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\utility\ArgumentParser.hpp">
@@ -150,6 +156,12 @@
       <Filter>Source Files\generators</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\generators\noise\ValueNoise.hpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\generators\noise\ModifiedNoise.hpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\generators\noise\PerlinNoise.hpp">
       <Filter>Source Files\generators\noise</Filter>
     </ClInclude>
   </ItemGroup>

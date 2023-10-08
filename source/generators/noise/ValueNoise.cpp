@@ -7,20 +7,6 @@
 #include <cassert>
 
 template<class Interpolator>
-void ValueNoise<Interpolator>::Generate(TilingMode mode, const Parameters& parameters, ImageData& data)
-{
-    switch (mode)
-    {
-    case TilingMode::kSimple:
-        GenerateSimple(parameters, data);
-        break;
-    case TilingMode::kWang:
-        GenerateWang(parameters, data);
-        break;
-    }
-}
-
-template<class Interpolator>
 void ValueNoise<Interpolator>::Generate(const std::vector<std::vector<f32>>& lattice, const Parameters& parameters, ImageData& data)
 {
     const u32 maxLatticeY = static_cast<const u32>(lattice.size());

@@ -80,19 +80,6 @@ struct NoiseSampler
     }
 };
 
-void WorleyNoise::Generate(TilingMode mode, const Parameters& parameters, ImageData& data)
-{
-    switch (mode)
-    {
-    case TilingMode::kSimple:
-        GenerateSimple(parameters, data);
-        break;
-    case TilingMode::kWang:
-        GenerateWang(parameters, data);
-        break;
-    }
-}
-
 void WorleyNoise::GenerateSimple(const Parameters& parameters, ImageData& data)
 {
     SimpleTilingIndexProvider indexProvider(parameters.cellsPerRow);

@@ -3,6 +3,8 @@
 #include "RunTests.hpp"
 
 #include "generators/Interpolator.hpp"
+#include "generators/noise/ModifiedNoise.hpp"
+#include "generators/noise/PerlinNoise.hpp"
 #include "generators/noise/ValueNoise.hpp"
 #include "generators/noise/WaveletNoise.hpp"
 #include "generators/noise/WhiteNoise.hpp"
@@ -50,6 +52,20 @@ static ImageData* createImage(const ArgumentParser& parser, u32 numChannels)
     return new ImageData(w, h, numChannels, parser.IsEnabled("mipmaps"));
 }
 
+template<class Generator>
+static void generate(TilingMode mode, const typename Generator::Parameters& parameters, ImageData& result)
+{
+    switch (mode)
+    {
+    case TilingMode::kSimple:
+        Generator::GenerateSimple(parameters, result);
+        break;
+    case TilingMode::kWang:
+        Generator::GenerateWang(parameters, result);
+        break;
+    }
+}
+
 static void generateChecker(TilingMode mode, const ArgumentParser& parser, ImageData& result)
 {
     Checker::Parameters parameters;
@@ -60,7 +76,7 @@ static void generateChecker(TilingMode mode, const ArgumentParser& parser, Image
     parameters.tileHeight = parser.GetValueAs<u32>("checker-tile-height");
     parameters.tileWidth = parser.GetValueAs<u32>("checker-tile-width");
     
-    Checker::Generate(mode, parameters, result);
+    generate<Checker>(mode, parameters, result);
 }
 
 static void generateWorley(TilingMode mode, const ArgumentParser& parser, ImageData& result)
@@ -79,12 +95,13 @@ static void generateWorley(TilingMode mode, const ArgumentParser& parser, ImageD
     parameters.gAdd = 0.0f;
     parameters.bAdd = 0.0f;
 
-    WorleyNoise::Generate(mode, parameters, result);
+    generate<WorleyNoise>(mode, parameters, result);
 }
 
 static void generateWhiteNoise(TilingMode mode, ImageData& result)
 {
-    WhiteNoise::Generate(mode, result);
+    WhiteNoise::Parameters parameters;
+    generate<WhiteNoise>(mode, parameters, result);
 }
 
 static void generateWavelet(TilingMode mode, const ArgumentParser& parser, ImageData& result)
@@ -93,7 +110,7 @@ static void generateWavelet(TilingMode mode, const ArgumentParser& parser, Image
     parameters.latticeWidth = parser.GetValueAs<u32>("lattice-width");
     parameters.latticeHeight = parser.GetValueAs<u32>("lattice-height");
 
-    WaveletNoise<FifthOrderInterpolator>::Generate(mode, parameters, result);
+    generate<WaveletNoise<FifthOrderInterpolator>>(mode, parameters, result);
 }
 
 static void generateValue(TilingMode mode, const ArgumentParser& parser, ImageData& result)
@@ -104,7 +121,25 @@ static void generateValue(TilingMode mode, const ArgumentParser& parser, ImageDa
     parameters.rangeMin = 0.0f;
     parameters.rangeMax = 1.0f;
 
-    ValueNoise<LinearInterpolator>::Generate(mode, parameters, result);
+    generate<ValueNoise<LinearInterpolator>>(mode, parameters, result);
+}
+
+static void generatePerlin(TilingMode mode, const ArgumentParser& parser, ImageData& result)
+{
+    PerlinNoise<FifthOrderInterpolator>::Parameters parameters;
+    parameters.latticeWidth = parser.GetValueAs<u32>("lattice-width");
+    parameters.latticeHeight = parser.GetValueAs<u32>("lattice-height");
+
+    generate<PerlinNoise<FifthOrderInterpolator>>(mode, parameters, result);
+}
+
+static void generateModified(TilingMode mode, const ArgumentParser& parser, ImageData& result)
+{
+    ModifiedNoise<FifthOrderInterpolator>::Parameters parameters;
+    parameters.latticeWidth = parser.GetValueAs<u32>("lattice-width");
+    parameters.latticeHeight = parser.GetValueAs<u32>("lattice-height");
+
+    generate<ModifiedNoise<FifthOrderInterpolator>>(mode, parameters, result);
 }
 
 i32 main(i32 argc, const char** argv)
@@ -114,7 +149,7 @@ i32 main(i32 argc, const char** argv)
     arguments.AddKnownArgument("run-tests", "rt", { "" }, {"run unit tests"});
     arguments.AddKnownArgument("help", "h", { "" }, { "print options" });
 
-    arguments.AddKnownArgument("generator", "g", { "checker", "worley", "white", "wavelet", "value" }, {
+    arguments.AddKnownArgument("generator", "g", { "checker", "worley", "white", "wavelet", "value", "perlin", "modified" }, {
         "select image generation algorithm",
 
         "generate checker pattern with random tile brightness",
@@ -122,6 +157,8 @@ i32 main(i32 argc, const char** argv)
         "generate white noise",
         "generate wavelet noise",
         "generate value noise",
+        "generate Perlin noise",
+        "generate modified noise",
         });
     arguments.AddKnownArgument("tiling", "t", { "simple", "wang" }, {
         "select image tiling algorithm",
@@ -173,6 +210,8 @@ i32 main(i32 argc, const char** argv)
         kWhite,
         kWavelet,
         kValue,
+        kPerlin,
+        kModified,
     };
 
     u32 numChannels = 1;
@@ -207,6 +246,12 @@ i32 main(i32 argc, const char** argv)
         break;
     case Generator::kValue:
         generateValue(tiling, arguments, *generated);
+        break;
+    case Generator::kPerlin:
+        generatePerlin(tiling, arguments, *generated);
+        break;
+    case Generator::kModified:
+        generateModified(tiling, arguments, *generated);
         break;
     };
 

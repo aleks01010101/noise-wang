@@ -1,63 +1,46 @@
-#include <cassert>
-
 #include "ModifiedNoise.hpp"
 
-#include "../../ImageData.hpp"
+#include "generators/Interpolator.hpp"
+#include "image/ImageData.hpp"
 
-namespace nModified
+#include <cassert>
+
+struct Hasher
 {
-    static std::vector<vec2f32> s_Gradients;
-
-    struct Hasher
+    u32 operator ()(u32 value)
     {
-        inline u32 operator ()(u32 value)
-        {
-            u32 temp = (value * value) % 61;
-            temp = (temp * temp) % 61;
-            return (temp * temp) % 61;
-        }
-    };
+        u32 temp = (value * value) % 61;
+        temp = (temp * temp) % 61;
+        return (temp * temp) % 61;
+    }
+};
 
-    struct Indexer
+struct Indexer
+{
+    u32 operator ()(Hasher& hasher, u32 x, u32 y)
     {
-        inline u32 operator ()(Hasher& hasher, u32 x, u32 y)
-        {
-            return (hasher(y + hasher(x))) & 0x3;
-        }
-    };
+        return (hasher(y + hasher(x))) & 0x3;
+    }
+};
+
+static void generateWeights(u32 count, std::vector<f32>& outWeights)
+{
+    outWeights.clear();
+    if (count > 1)
+    {
+        f32 divisor = static_cast<f32>(count);
+        for (u32 i = 0; i < count; ++i)
+            outWeights.push_back(static_cast<f32>(i) / divisor);
+    }
+    else
+        outWeights.push_back(0.5f);
 }
 
 template<class Interpolator>
-void ModifiedNoise<Interpolator>::Initialize()
+void ModifiedNoise<Interpolator>::Generate(const Lattice& latticeX, const Lattice& latticeY, const Parameters& parameters, ImageData& data)
 {
-    std::vector<vec2f32>& s_Gradients = nModified::s_Gradients;
-    
-    if (s_Gradients.size() > 0)
-        return;
-
-    s_Gradients.reserve(4);
-
-    s_Gradients.push_back(vec2f32( 1.0f,  1.0f));
-    s_Gradients.push_back(vec2f32(-1.0f,  1.0f));
-    s_Gradients.push_back(vec2f32( 1.0f, -1.0f));
-    s_Gradients.push_back(vec2f32(-1.0f, -1.0f));
-}
-
-template<class Interpolator>
-ModifiedNoise<Interpolator>::ModifiedNoise()
-{
-}
-
-template<class Interpolator>
-ModifiedNoise<Interpolator>::~ModifiedNoise()
-{
-}
-
-template<class Interpolator>
-void ModifiedNoise<Interpolator>::Generate(ImageData& data, const std::vector<std::vector<vec2f32>>& lattice) const
-{
-    const u32 maxLatticeY = static_cast<const u32>(lattice.size());
-    const u32 maxLatticeX = static_cast<const u32>(lattice[0].size());
+    const u32 maxLatticeY = static_cast<const u32>(latticeX.size());
+    const u32 maxLatticeX = static_cast<const u32>(latticeX[0].size());
     std::vector<f32> xWeights;
     std::vector<f32> yWeights;
 
@@ -68,31 +51,16 @@ void ModifiedNoise<Interpolator>::Generate(ImageData& data, const std::vector<st
         u32 h;
         data.GetDimensions(w, h, mip);
 
-        u32 latticeXStride = m_Parameters.latticeWidth / w;
-        u32 latticeYStride = m_Parameters.latticeHeight / h;
+        u32 latticeXStride = parameters.latticeWidth / w;
+        u32 latticeYStride = parameters.latticeHeight / h;
         latticeXStride = (latticeXStride >= 1) ? latticeXStride : 1;    
         latticeYStride = (latticeYStride >= 1) ? latticeYStride : 1;
 
-        xWeights.clear();
-        u32 xWeightCount = w / m_Parameters.latticeWidth;
-        if (xWeightCount <= 1)
-            xWeights.push_back(0.5f);
-        else
-        {
-            for (u32 i = 0; i < xWeightCount; ++i)
-                xWeights.push_back(static_cast<f32>(i) / static_cast<f32>(xWeightCount));
-        }
-
-        yWeights.clear();
-        u32 yWeightCount = h / m_Parameters.latticeHeight;
-        if (yWeightCount <= 1)
-            yWeights.push_back(0.5f);
-        else
-        {
-            for (u32 i = 0; i < yWeightCount; ++i)
-                yWeights.push_back(static_cast<f32>(i) / static_cast<f32>(yWeightCount));
-        }
-
+        u32 xWeightCount = w / parameters.latticeWidth;
+        u32 yWeightCount = h / parameters.latticeHeight;
+        generateWeights(xWeightCount, xWeights);
+        generateWeights(yWeightCount, yWeights);
+        
         f32* pixels = data.GetPixels(mip);
         u32 index = 0;
         u32 topIndex = 0;
@@ -100,8 +68,10 @@ void ModifiedNoise<Interpolator>::Generate(ImageData& data, const std::vector<st
         u32 yWeightIndex = 0;
         for (u32 y = 0; y < h; ++y)
         {
-            const std::vector<vec2f32>& top = lattice[topIndex];
-            const std::vector<vec2f32>& bottom = lattice[bottomIndex];
+            const std::vector<f32>& topX = latticeX[topIndex];
+            const std::vector<f32>& topY = latticeY[topIndex];
+            const std::vector<f32>& bottomX = latticeX[bottomIndex];
+            const std::vector<f32>& bottomY = latticeY[bottomIndex];
             u32 xWeightIndex = 0;
             u32 leftIndex = 0;
             u32 rightIndex = latticeXStride;
@@ -111,25 +81,29 @@ void ModifiedNoise<Interpolator>::Generate(ImageData& data, const std::vector<st
             f32 invYWeight = 1.0f - yWeight;
             for (u32 x = 0; x < w; ++x)
             {
-                const vec2f32& tl = top[leftIndex];
-                const vec2f32& tr = top[rightIndex];
-                const vec2f32& bl = bottom[leftIndex];
-                const vec2f32& br = bottom[rightIndex];
+                f32 tlX = topX[leftIndex];
+                f32 tlY = topY[leftIndex];
+                f32 trX = topX[rightIndex];
+                f32 trY = topY[rightIndex];
+                f32 blX = bottomX[leftIndex];
+                f32 blY = bottomY[leftIndex];
+                f32 brX = bottomX[rightIndex];
+                f32 brY = bottomY[rightIndex];
                 
                 f32 x0 = xWeights[xWeightIndex];
                 f32 x1 = x0 - 1.0f;
                 f32 xWeight = Interpolator()(x0);
                 f32 invXWeight = 1.0f - xWeight;
 
-                f32 g0 = tl.x * x0 + tl.y * y0;
-                f32 g1 = tr.x * x1 + tr.y * y0;
-                f32 g2 = bl.x * x0 + bl.y * y1;
-                f32 g3 = br.x * x1 + br.y * y1;
+                f32 g0 = fmaf(tlX, x0, tlY * y0);
+                f32 g1 = fmaf(trX, x1, trY * y0);
+                f32 g2 = fmaf(blX, x0, blY * y1);
+                f32 g3 = fmaf(brX, x1, brY * y1);
 
-                f32 t = g0 * invXWeight + g1 * xWeight;
-                f32 b = g2 * invXWeight + g3 * xWeight;
-                f32 value = t * invYWeight + b * yWeight;
-                pixels[index] = (value + 1.0f) * 0.5f;
+                f32 t = fmaf(g0, invXWeight, g1 * xWeight);
+                f32 b = fmaf(g2, invXWeight, g3 * xWeight);
+                f32 value = fmaf(t, invYWeight, b * yWeight);
+                pixels[index] = fmaf(value, 0.5f, 0.5f);
 
                 ++index;
                 ++xWeightIndex;
@@ -154,119 +128,118 @@ void ModifiedNoise<Interpolator>::Generate(ImageData& data, const std::vector<st
 }
 
 template<class Interpolator>
-void ModifiedNoise<Interpolator>::GenerateNoTiling(ImageData& data) const
+void ModifiedNoise<Interpolator>::GenerateSimple(const Parameters& parameters, ImageData& data)
 {
-    assert(m_Parameters.latticeWidth > 0);
-    assert(m_Parameters.latticeHeight > 0);
-
-    Initialize();
-
-    nModified::Hasher hasher;
-    nModified::Indexer indexer;
-
-    const std::vector<vec2f32>& s_Gradients = nModified::s_Gradients;
-
-    u32 yPoints = m_Parameters.latticeHeight + 1;
-    u32 xPoints = m_Parameters.latticeWidth + 1;
-    std::vector<std::vector<vec2f32>> lattice(yPoints);
-    for (u32 i = 0; i < yPoints; ++i)
-        lattice[i].resize(xPoints);
+    u32 w = data.GetWidth();
+    u32 h = data.GetHeight();
+    assert(w % parameters.latticeWidth == 0);
+    assert(h % parameters.latticeHeight == 0);
     
-    for (u32 y = 0; y < yPoints; ++y)
+    f32 gradientsX[] = {
+        1.0f, -1.0f, 1.0f, -1.0f
+    };
+    f32 gradientsY[] = {
+        1.0f, 1.0f, -1.0f, -1.0f
+    };
+    
+    Hasher hasher;
+    Indexer indexer;
+
+    u32 yPoints = parameters.latticeHeight + 1;
+    u32 xPoints = parameters.latticeWidth + 1;
+    Lattice latticeX(yPoints);
+    Lattice latticeY(yPoints);
+    for (u32 i = 0; i < yPoints; ++i)
     {
-        std::vector<vec2f32>& row = lattice[y];
-        for (u32 x = 0; x < xPoints; ++x)
-            row[x] = s_Gradients[indexer(hasher, x + 1, y + 1)];
+        latticeX[i].resize(xPoints);
+        latticeY[i].resize(xPoints);
     }
 
-    Generate(data, lattice);
-}
-
-template<class Interpolator>
-void ModifiedNoise<Interpolator>::GenerateSimple(ImageData& data) const
-{
-    u32 w;
-    u32 h;
-    data.GetDimensions(w, h, 0);
-    assert(w % m_Parameters.latticeWidth == 0);
-    assert(h % m_Parameters.latticeHeight == 0);
-    assert(m_Parameters.latticeWidth > 0);
-    assert(m_Parameters.latticeHeight > 0);
-
-    Initialize();
-
-    nModified::Hasher hasher;
-    nModified::Indexer indexer;
-
-    const std::vector<vec2f32>& s_Gradients = nModified::s_Gradients;
-
-    u32 yPoints = m_Parameters.latticeHeight + 1;
-    u32 xPoints = m_Parameters.latticeWidth + 1;
-    std::vector<std::vector<vec2f32>> lattice(yPoints);
-    for (u32 i = 0; i < yPoints; ++i)
-        lattice[i].resize(xPoints);
-
     for (u32 y = 0; y < yPoints; ++y)
     {
-        std::vector<vec2f32>& row = lattice[y];
-        u32 j = (y % m_Parameters.latticeHeight) + 1;
+        std::vector<f32>& rowX = latticeX[y];
+        std::vector<f32>& rowY = latticeY[y];
+        u32 j = (y % parameters.latticeHeight) + 1;
         for (u32 x = 0; x < xPoints; ++x)
         {
-            u32 i = (x % m_Parameters.latticeWidth) + 1;
-            row[x] = s_Gradients[indexer(hasher, i, j)];
+            u32 i = (x % parameters.latticeWidth) + 1;
+            u32 index = indexer(hasher, i, j);
+            rowX[x] = gradientsX[index];
+            rowY[x] = gradientsY[index];
         }
     }
 
-    Generate(data, lattice);
+    Generate(latticeX, latticeY, parameters, data);
 }
 
 template<class Interpolator>
-void ModifiedNoise<Interpolator>::GenerateWang(ImageData& data) const
+void ModifiedNoise<Interpolator>::GenerateWang(const Parameters& parameters, ImageData& data)
 {
-    u32 w;
-    u32 h;
-    data.GetDimensions(w, h, 0);
-    assert(w % m_Parameters.latticeWidth == 0);
-    assert(h % m_Parameters.latticeHeight == 0);
-    assert((m_Parameters.latticeWidth & 3) == 0);
-    assert((m_Parameters.latticeHeight & 3) == 0);
-    assert(m_Parameters.latticeWidth > 0);
-    assert(m_Parameters.latticeHeight > 0);
+    u32 w = data.GetWidth();
+    u32 h = data.GetHeight();
+    assert(w % parameters.latticeWidth == 0);
+    assert(h % parameters.latticeHeight == 0);
+    assert((parameters.latticeWidth & 3) == 0);
+    assert((parameters.latticeHeight & 3) == 0);
 
-    Initialize();
+    Hasher hasher;
+    Indexer indexer;
 
-    nModified::Hasher hasher;
-    nModified::Indexer indexer;
+    f32 gradientsX[] = {
+        1.0f, -1.0f, 1.0f, -1.0f
+    };
+    f32 gradientsY[] = {
+        1.0f, 1.0f, -1.0f, -1.0f
+    };
 
-    const std::vector<vec2f32>& s_Gradients = nModified::s_Gradients;
-
-    u32 yPoints = m_Parameters.latticeHeight + 1;
-    u32 xPoints = m_Parameters.latticeWidth + 1;
-    std::vector<std::vector<vec2f32>> lattice(yPoints);
+    u32 yPoints = parameters.latticeHeight + 1;
+    u32 xPoints = parameters.latticeWidth + 1;
+    Lattice latticeX(yPoints);
+    Lattice latticeY(yPoints);
     for (u32 i = 0; i < yPoints; ++i)
-        lattice[i].resize(xPoints);
+    {
+        latticeX[i].resize(xPoints);
+        latticeY[i].resize(xPoints);
+    }
     
-    u32 tileWidth = m_Parameters.latticeWidth >> 2;
-    u32 tileHeight = m_Parameters.latticeHeight >> 2;
+    u32 tileWidth = parameters.latticeWidth >> 2;
+    u32 tileHeight = parameters.latticeHeight >> 2;
     u32 innerXPoints = tileWidth - 1;
     u32 innerYPoints = tileHeight - 1;
 
-    u32 indices[] = {0, tileHeight};
-    const u32 tileCopyBytes = tileWidth * sizeof(vec2f32);
-    vec2f32 corner = s_Gradients[indexer(hasher, 1, 1)];
+    u32 indices[] = {
+        0, tileHeight
+    };
+    const u32 tileCopyBytes = tileWidth * sizeof(f32);
+    u32 cornerIndex = indexer(hasher, 1, 1);
+    f32 cornerX = gradientsX[cornerIndex];
+    f32 cornerY = gradientsY[cornerIndex];
     for (u32 j = 0; j < 2; ++j)
     {
-        std::vector<vec2f32>& toFill = lattice[indices[j]];
-        toFill[0] = corner;
+        std::vector<f32>& toFillX = latticeX[indices[j]];
+        std::vector<f32>& toFillY = latticeY[indices[j]];
+        toFillX[0] = cornerX;
+        toFillY[0] = cornerY;
         u32 index = 1;
         for (u32 i = 0; i < innerXPoints; ++i)
         {
-            toFill[index] = s_Gradients[indexer(hasher, index, j * tileHeight + 1)];
+            u32 gradientIndex = indexer(hasher, index, j * tileHeight + 1);
+            toFillX[index] = gradientsX[gradientIndex];
+            toFillY[index] = gradientsY[gradientIndex];
             ++index;
         }
-        toFill[index] = corner;
-        vec2f32* source = &toFill[1];
-        vec2f32* destination = source;
+        toFillX[index] = cornerX;
+        toFillY[index] = cornerY;
+        f32* source = &toFillX[1];
+        f32* destination = source;
+        // Copy the generated edge to all 4 tiles
+        for (u32 i = 0; i < 3; ++i)
+        {
+            destination += tileWidth;
+            memcpy(destination, source, tileCopyBytes);
+        }
+        source = &toFillY[1];
+        destination = source;
         // Copy the generated edge to all 4 tiles
         for (u32 i = 0; i < 3; ++i)
         {
@@ -276,24 +249,40 @@ void ModifiedNoise<Interpolator>::GenerateWang(ImageData& data) const
     }
     
     // Copy generated rows to other rows that have same colors
-    const u32 rowCopyBytes = xPoints * sizeof(vec2f32);
-    vec2f32* source = &lattice[0][0];
-    vec2f32* destination = &lattice[tileHeight * 3][0];
+    const u32 rowCopyBytes = xPoints * sizeof(f32);
+    f32* source = &latticeX[0][0];
+    f32* destination = &latticeX[tileHeight * 3][0];
     memcpy(destination, source, rowCopyBytes);
-    destination = &lattice[tileHeight * 4][0];
+    destination = &latticeX[tileHeight * 4][0];
     memcpy(destination, source, rowCopyBytes);
     
-    source = &lattice[tileHeight][0];
-    destination = &lattice[tileHeight * 2][0];
+    source = &latticeX[tileHeight][0];
+    destination = &latticeX[tileHeight * 2][0];
+    memcpy(destination, source, rowCopyBytes);
+
+    source = &latticeY[0][0];
+    destination = &latticeY[tileHeight * 3][0];
+    memcpy(destination, source, rowCopyBytes);
+    destination = &latticeY[tileHeight * 4][0];
+    memcpy(destination, source, rowCopyBytes);
+
+    source = &latticeY[tileHeight][0];
+    destination = &latticeY[tileHeight * 2][0];
     memcpy(destination, source, rowCopyBytes);
 
     // Generate vertical tile edges
-    std::vector<vec2f32> vertical0(innerYPoints);
-    std::vector<vec2f32> vertical1(innerYPoints);
+    std::vector<f32> vertical0X(innerYPoints);
+    std::vector<f32> vertical0Y(innerYPoints);
+    std::vector<f32> vertical1X(innerYPoints);
+    std::vector<f32> vertical1Y(innerYPoints);
     for (u32 i = 0; i < innerYPoints; ++i)
     {
-        vertical0[i] = s_Gradients[indexer(hasher, 1, i + 1)];
-        vertical1[i] = s_Gradients[indexer(hasher, 1, i + tileHeight + 1)];
+        u32 index = indexer(hasher, 1, i + 1);
+        vertical0X[i] = gradientsX[index];
+        vertical0Y[i] = gradientsY[index];
+        index = indexer(hasher, 1, i + tileHeight + 1);
+        vertical1X[i] = gradientsX[index];
+        vertical1Y[i] = gradientsY[index];
     }
 
     for (u32 verticalTileIndex = 0; verticalTileIndex < 4; ++verticalTileIndex)
@@ -301,19 +290,28 @@ void ModifiedNoise<Interpolator>::GenerateWang(ImageData& data) const
         u32 rowIndex = tileHeight * verticalTileIndex + 1;
         for (u32 i = 0; i < innerYPoints; ++i)
         {
-            std::vector<vec2f32>& row = lattice[rowIndex];
-            row[0] = vertical0[i];
-            row[tileWidth] = vertical0[i];
-            row[tileWidth * 2] = vertical1[i];
-            row[tileWidth * 3] = vertical1[i];
-            row[tileWidth * 4] = vertical0[i];
+            std::vector<f32>& rowX = latticeX[rowIndex];
+            std::vector<f32>& rowY = latticeY[rowIndex];
+
+            rowX[0] = vertical0X[i];
+            rowY[0] = vertical0Y[i];
+            rowX[tileWidth] = vertical0X[i];
+            rowY[tileWidth] = vertical0Y[i];
+            rowX[tileWidth * 2] = vertical1X[i];
+            rowY[tileWidth * 2] = vertical1Y[i];
+            rowX[tileWidth * 3] = vertical1X[i];
+            rowY[tileWidth * 3] = vertical1Y[i];
+            rowX[tileWidth * 4] = vertical0X[i];
+            rowY[tileWidth * 4] = vertical0Y[i];
 
             for (u32 horizontalTileIndex = 0; horizontalTileIndex < 4; ++horizontalTileIndex)
             {
                 u32 index = horizontalTileIndex * tileWidth + 1;
                 for (u32 j = 0; j < innerXPoints; ++j)
                 {
-                    row[index] = s_Gradients[indexer(hasher, index + 1, rowIndex + 1)];
+                    u32 gradientIndex = indexer(hasher, index + 1, rowIndex + 1);
+                    rowX[index] = gradientsX[gradientIndex];
+                    rowY[index] = gradientsY[gradientIndex];
                     ++index;
                 }
             }
@@ -322,108 +320,7 @@ void ModifiedNoise<Interpolator>::GenerateWang(ImageData& data) const
         }
     }
 
-    Generate(data, lattice);
+    Generate(latticeX, latticeY, parameters, data);
 }
 
-template<class Interpolator>
-void ModifiedNoise<Interpolator>::GenerateCorner(ImageData& data) const
-{
-    u32 w;
-    u32 h;
-    data.GetDimensions(w, h, 0);
-    assert(w % m_Parameters.latticeWidth == 0);
-    assert(h % m_Parameters.latticeHeight == 0);
-    assert((m_Parameters.latticeWidth & 3) == 0);
-    assert((m_Parameters.latticeHeight & 3) == 0);
-    assert(m_Parameters.latticeWidth > 0);
-    assert(m_Parameters.latticeHeight > 0);
-
-    Initialize();
-
-    nModified::Hasher hasher;
-    nModified::Indexer indexer;
-
-    const std::vector<vec2f32>& s_Gradients = nModified::s_Gradients;
-
-    u32 yPoints = m_Parameters.latticeHeight + 1;
-    u32 xPoints = m_Parameters.latticeWidth + 1;
-    std::vector<std::vector<vec2f32>> lattice(yPoints);
-    for (u32 i = 0; i < yPoints; ++i)
-        lattice[i].resize(xPoints);
-
-    u32 latticeTileWidth = m_Parameters.latticeWidth >> 2;
-    u32 latticeTileHeight = m_Parameters.latticeHeight >> 2;
-    u32 xTileUnique = latticeTileWidth - 1;
-    u32 yTileUnique = latticeTileHeight - 1;
-
-    vec2f32 cornerR = s_Gradients[indexer(hasher, 0, 0)];
-    vec2f32 cornerG = s_Gradients[indexer(hasher, 1, 0)];
-    vec2f32 cornerValues[2] = {cornerR, cornerG};
-    std::vector<vec2f32> horizontalBorders[4];
-    std::vector<vec2f32> verticalBorders[4];
-
-    for (u32 i = 0; i < 4; ++i)
-    {
-        horizontalBorders[i].reserve(xTileUnique);
-        verticalBorders[i].reserve(yTileUnique);
-        for (u32 j = 0; j < xTileUnique; ++j)
-            horizontalBorders[i].push_back(s_Gradients[indexer(hasher, j + 1, 0)]);
-        for (u32 j = 0; j < yTileUnique; ++j)
-            verticalBorders[i].push_back(s_Gradients[indexer(hasher, 0, j + 1)]);
-    }
-
-    u8 corners[25] = {
-        0, 0, 1, 0, 0,
-        1, 0, 1, 1, 1,
-        0, 1, 1, 1, 0,
-        0, 0, 0, 1, 0,
-        0, 0, 1, 0, 0
-    };
-
-    u32 tileIndex = 0;
-    for (u32 tileY = 0; tileY < 4; ++tileY)
-    {
-        for (u32 tileX = 0; tileX < 4; ++tileX)
-        {
-            u8 tl = corners[tileIndex];
-            u8 tr = corners[tileIndex + 1];
-            u8 bl = corners[tileIndex + 5];
-            u8 br = corners[tileIndex + 6];
-
-            u8 topBorderIndex = tl * 2 + tr;
-            u8 bottomBorderIndex = bl * 2 + br;
-            u8 leftBorderIndex = tl * 2 + bl;
-            u8 rightBorderIndex = tr * 2 + br;
-
-            const std::vector<vec2f32>& topBorder = horizontalBorders[topBorderIndex];
-            const std::vector<vec2f32>& bottomBorder = horizontalBorders[bottomBorderIndex];
-            const std::vector<vec2f32>& leftBorder = verticalBorders[leftBorderIndex];
-            const std::vector<vec2f32>& rightBorder = verticalBorders[rightBorderIndex];
-
-            u32 tileXOffset = latticeTileWidth * tileX;
-            u32 tileYOffset = latticeTileHeight * tileY;
-            lattice[tileYOffset][tileXOffset] = cornerValues[corners[tl]];
-            memcpy(&lattice[tileYOffset][tileXOffset + 1], &topBorder[0], sizeof(vec2f32) * xTileUnique);
-            lattice[tileYOffset][tileXOffset + xTileUnique + 1] = cornerValues[corners[tr]];
-            ++tileYOffset;
-            for (u32 j = 0; j < yTileUnique; ++j)
-            {
-                u32 rowOffset = tileXOffset;
-                std::vector<vec2f32>& row = lattice[tileYOffset];
-                row[rowOffset++] = leftBorder[j];
-                for (u32 i = 0; i < xTileUnique; ++i)
-                    row[rowOffset++] = s_Gradients[indexer(hasher, i + tileXOffset + 1, j + tileYOffset + 1)];
-                row[rowOffset] = rightBorder[j];
-                ++tileYOffset;
-            }
-            lattice[tileYOffset][tileXOffset] = cornerValues[corners[bl]];
-            memcpy(&lattice[tileYOffset][tileXOffset + 1], &bottomBorder[0], sizeof(vec2f32) * xTileUnique);
-            lattice[tileYOffset][tileXOffset + xTileUnique + 1] = cornerValues[corners[br]];
-            
-            ++tileIndex;
-        }
-        ++tileIndex;
-    }
-
-    Generate(data, lattice);
-}
+template class ModifiedNoise<FifthOrderInterpolator>;

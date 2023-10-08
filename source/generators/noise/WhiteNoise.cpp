@@ -119,20 +119,7 @@ static f32 toFloat(u32 value)
     return static_cast<f32>(static_cast<f64>(value) / static_cast<f64>(UINT32_MAX));
 }
 
-void WhiteNoise::Generate(TilingMode mode, ImageData& data)
-{
-    switch (mode)
-    {
-    case TilingMode::kSimple:
-        GenerateSimple(data);
-        break;
-    case TilingMode::kWang:
-        GenerateWang(data);
-        break;
-    }
-}
-
-void WhiteNoise::GenerateSimple(ImageData& data)
+void WhiteNoise::GenerateSimple(const Parameters&, ImageData& data)
 {
     const u32 mips = data.GetMipLevelCount();
     for (u32 mip = 0; mip < mips; ++mip)
@@ -157,7 +144,7 @@ void WhiteNoise::GenerateSimple(ImageData& data)
     }
 }
 
-void WhiteNoise::GenerateWang(ImageData& data)
+void WhiteNoise::GenerateWang(const Parameters& parameters, ImageData& data)
 {
-    GenerateSimple(data);
+    GenerateSimple(parameters, data);
 }

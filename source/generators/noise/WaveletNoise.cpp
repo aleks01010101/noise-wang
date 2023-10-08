@@ -56,20 +56,6 @@ static inline void Upsample(const f32* const source, f32* destination, u32 size,
 }
 
 template<class Interpolator>
-void WaveletNoise<Interpolator>::Generate(TilingMode mode, const Parameters& parameters, ImageData& data)
-{
-    switch (mode)
-    {
-    case TilingMode::kSimple:
-        GenerateSimple(parameters, data);
-        break;
-    case TilingMode::kWang:
-        GenerateWang(parameters, data);
-        break;
-    }
-}
-
-template<class Interpolator>
 void WaveletNoise<Interpolator>::Generate(const Parameters& parameters, ImageData& data, ImageData& baseNoise)
 {
     u32 mipCount = data.GetMipLevelCount();
@@ -223,7 +209,7 @@ void WaveletNoise<Interpolator>::GenerateSimple(const Parameters& parameters, Im
     p.rangeMax = 1.0f;
     p.latticeWidth = parameters.latticeWidth;
     p.latticeHeight = parameters.latticeHeight;
-    ValueNoise<LinearInterpolator>::Generate(TilingMode::kSimple, p, baseNoise);
+    ValueNoise<LinearInterpolator>::GenerateSimple(p, baseNoise);
 
     Generate(parameters, data, baseNoise);
 }
@@ -238,7 +224,7 @@ void WaveletNoise<Interpolator>::GenerateWang(const Parameters& parameters, Imag
     p.rangeMax = 1.0f;
     p.latticeWidth = parameters.latticeWidth;
     p.latticeHeight = parameters.latticeHeight;
-    ValueNoise<LinearInterpolator>::Generate(TilingMode::kWang, p, baseNoise);
+    ValueNoise<LinearInterpolator>::GenerateWang(p, baseNoise);
 
     Generate(parameters, data, baseNoise);
 }

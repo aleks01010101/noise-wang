@@ -23,12 +23,10 @@ public:
         f32 bMul;
     };
 
-    static void Generate(TilingMode mode, const Parameters& parameters, ImageData& data);
-
-private:
     static void GenerateSimple(const Parameters& parameters, ImageData& data);
     static void GenerateWang(const Parameters& parameters, ImageData& data);
 
+private:
     template<class IndexProvider>
     static void Generate(const IndexProvider& indexProvider, const Parameters& parameters, ImageData& data);
 };

@@ -19,10 +19,9 @@ public:
         f32 rangeMax;
     };
 
-    static void Generate(TilingMode mode, const Parameters& parameters, ImageData& data);
-
-private:
     static void GenerateSimple(const Parameters& parameters, ImageData& data);
     static void GenerateWang(const Parameters& parameters, ImageData& data);
+
+private:
     static void Generate(const std::vector<std::vector<f32>>& lattice, const Parameters& parameters, ImageData& data);
 };

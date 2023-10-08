@@ -19,10 +19,9 @@ public:
         f32 brightMax;
     };
 
-    static void Generate(TilingMode mode, const Parameters& parameters, ImageData& data);
-
-private:
     static void GenerateSimple(const Parameters& parameters, ImageData& data);
     static void GenerateWang(const Parameters& parameters, ImageData& data);
+
+private:
     static void Generate(const Parameters& parameters, ImageData& data);
 };

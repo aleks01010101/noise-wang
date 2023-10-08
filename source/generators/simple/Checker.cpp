@@ -7,19 +7,6 @@
 #include <iostream>
 #include <vector>
 
-void Checker::Generate(TilingMode mode, const Parameters& parameters, ImageData& data)
-{
-    switch (mode)
-    {
-    case TilingMode::kSimple:
-        GenerateSimple(parameters, data);
-        break;
-    case TilingMode::kWang:
-        GenerateWang(parameters, data);
-        break;
-    }
-}
-
 void Checker::GenerateSimple(const Parameters& parameters, ImageData& data)
 {
     u32 w = data.GetWidth();

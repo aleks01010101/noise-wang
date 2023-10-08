@@ -8,9 +8,9 @@ class ImageData;
 class WhiteNoise
 {
 public:
-    static void Generate(TilingMode mode, ImageData& data);
+    struct Parameters
+    {};
 
-private:
-    static void GenerateSimple(ImageData& data);
-    static void GenerateWang(ImageData& data);
+    static void GenerateSimple(const Parameters& parameters, ImageData& data);
+    static void GenerateWang(const Parameters& parameters, ImageData& data);
 };

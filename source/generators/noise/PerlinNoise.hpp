@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
+#include "utility/Types.hpp"
 
-#include "../../Vector2.hpp"
+#include <vector>
 
 class ImageData;
 
@@ -15,24 +15,13 @@ public:
         u32 latticeWidth;
         u32 latticeHeight;
     };
-    
-public:
-    PerlinNoise();
-    ~PerlinNoise();
 
-public:
-    void GenerateNoTiling(ImageData& data) const;
-    void GenerateSimple(ImageData& data) const;
-    void GenerateWang(ImageData& data) const;
-    void GenerateCorner(ImageData& data) const;
-
-    void SetParameters(const Parameters& value) { m_Parameters = value; }
+    static void GenerateSimple(const Parameters& parameters, ImageData& data);
+    static void GenerateWang(const Parameters& parameters, ImageData& data);
 
 private:
-    void Generate(ImageData& data, const std::vector<std::vector<vec2f32>>& lattice) const;
+    typedef std::vector<std::vector<f32>> Lattice;
+    static void Generate(const Lattice& latticeX, const Lattice& latticeY, const Parameters& parameters, ImageData& data);
     
-    static void Initialize();
-
-private:
-    Parameters m_Parameters;
+    static void EnsureInitialized();
 };
