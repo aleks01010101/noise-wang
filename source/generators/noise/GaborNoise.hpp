@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
+#include "utility/Types.hpp"
 
-#include "../../Types.hpp"
+#include <vector>
 
 class ImageData;
 
@@ -23,22 +23,10 @@ public:
         f32 frequencyOrientationMax;
     };
     
-public:
-    GaborNoise();
-    ~GaborNoise();
-
-public:
-    void GenerateNoTiling(ImageData& data) const;
-    void GenerateSimple(ImageData& data) const;
-    void GenerateWang(ImageData& data) const;
-    void GenerateCorner(ImageData& data) const;
-
-    void SetParameters(const Parameters& value) { m_Parameters = value; }
+    static void GenerateSimple(const Parameters& parameters, ImageData& data);
+    static void GenerateWang(const Parameters& parameters, ImageData& data);
 
 private:
     template<class IndexProvider>
-    void Generate(const IndexProvider& indexProvider, ImageData& data) const;
-
-private:
-    Parameters m_Parameters;
+    static void Generate(const Parameters& parameters, const IndexProvider& indexProvider, ImageData& data);
 };

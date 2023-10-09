@@ -16,7 +16,7 @@ struct CosineInterpolator
 {
     f32 operator ()(f32 weight)
     {
-        return fmaf(cosf(weight * 3.1415927f), -0.5f, 0.5f);
+        return fmaf(cosf(weight * 3.1416f), -0.5f, 0.5f);
     }
 };
 

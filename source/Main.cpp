@@ -3,6 +3,7 @@
 #include "RunTests.hpp"
 
 #include "generators/Interpolator.hpp"
+#include "generators/noise/GaborNoise.hpp"
 #include "generators/noise/ModifiedNoise.hpp"
 #include "generators/noise/PerlinNoise.hpp"
 #include "generators/noise/ValueNoise.hpp"
@@ -34,6 +35,8 @@ static constexpr u64 kDefaultLatticeHeight = 32;
 // Image defaults
 static constexpr u64 kDefaultWidth = 1024;
 static constexpr u64 kDefaultHeight = 1024;
+
+static constexpr f32 kPI = 3.1416f;
 
 static void printOptions(const ArgumentParser& parser)
 {
@@ -83,9 +86,9 @@ static void generateWorley(TilingMode mode, const ArgumentParser& parser, ImageD
 {
     WorleyNoise::Parameters parameters;
 
-    parameters.minPointsPerCell = parser.GetValueAs<u32>("worley-min-points-per-cell");
-    parameters.maxPointsPerCell = parser.GetValueAs<u32>("worley-max-points-per-cell");
-    parameters.cellSize = parser.GetValueAs<u32>("worley-cell-size");
+    parameters.minPointsPerCell = parser.GetValueAs<u32>("min-points-per-cell");
+    parameters.maxPointsPerCell = parser.GetValueAs<u32>("max-points-per-cell");
+    parameters.cellSize = parser.GetValueAs<u32>("cell-size");
     parameters.cellsPerRow = result.GetWidth() / parameters.cellSize;
     parameters.cellIndexOffset = 1;
     parameters.rMul = 1.0f;
@@ -142,6 +145,24 @@ static void generateModified(TilingMode mode, const ArgumentParser& parser, Imag
     generate<ModifiedNoise<FifthOrderInterpolator>>(mode, parameters, result);
 }
 
+static void generateGabor(TilingMode mode, const ArgumentParser& parser, ImageData& result)
+{
+    GaborNoise::Parameters parameters;
+    parameters.cellOffset = 1;
+    parameters.cellSize = parser.GetValueAs<u32>("cell-size");
+    parameters.frequencyMagnitudeMax = 0.05f * kPI;
+    parameters.frequencyMagnitudeMin = 0.05f * kPI;
+    bool anisotropic = parser.IsEnabled("anisotropic");
+    parameters.frequencyOrientationMax = anisotropic ? 0.25f * kPI : 2.0f * kPI;
+    parameters.frequencyOrientationMin = anisotropic ? 0.25f * kPI : 0.0f;
+    parameters.gaussianMagnitude = 0.1f;
+    parameters.gaussianWidth = kPI / (parameters.cellSize * parameters.cellSize);
+    parameters.numberOfImpulsesPerCell = parser.GetValueAs<u32>("min-points-per-cell");
+    parameters.numberOfImpulsesPerCellCap = parser.GetValueAs<u32>("max-points-per-cell");
+
+    generate<GaborNoise>(mode, parameters, result);
+}
+
 i32 main(i32 argc, const char** argv)
 {
     ArgumentParser arguments;
@@ -149,7 +170,7 @@ i32 main(i32 argc, const char** argv)
     arguments.AddKnownArgument("run-tests", "rt", { "" }, {"run unit tests"});
     arguments.AddKnownArgument("help", "h", { "" }, { "print options" });
 
-    arguments.AddKnownArgument("generator", "g", { "checker", "worley", "white", "wavelet", "value", "perlin", "modified" }, {
+    arguments.AddKnownArgument("generator", "g", { "checker", "worley", "white", "wavelet", "value", "perlin", "modified", "gabor" }, {
         "select image generation algorithm",
 
         "generate checker pattern with random tile brightness",
@@ -159,6 +180,7 @@ i32 main(i32 argc, const char** argv)
         "generate value noise",
         "generate Perlin noise",
         "generate modified noise",
+        "generate Gabor noise",
         });
     arguments.AddKnownArgument("tiling", "t", { "simple", "wang" }, {
         "select image tiling algorithm",
@@ -175,10 +197,12 @@ i32 main(i32 argc, const char** argv)
     arguments.AddKnownArgument("checker-tile-width", "tw", {}, { "width of a checker tile. Must be a divisor of image width" }, kDefaultTileWidth);
     arguments.AddKnownArgument("checker-tile-height", "th", {}, { "height of a checker tile. Must be a divisor of image height" }, kDefaultTileHeight);
 
-    // Worley noise parameters
-    arguments.AddKnownArgument("worley-min-points-per-cell", "minppc", {}, { "minimum number of points per cell for Worley noise" }, kDefaultMinPointsPerCell);
-    arguments.AddKnownArgument("worley-max-points-per-cell", "maxppc", {}, { "maximum number of points per cell for Worley noise" }, kDefaultMaxPointsPerCell);
-    arguments.AddKnownArgument("worley-cell-size", "cs", {}, { "size of a single cell for Worley noise" }, kDefaultCellSize);
+    // Worley and Gabor noise parameters
+    arguments.AddKnownArgument("min-points-per-cell", "minppc", {}, { "minimum number of points per cell for Worley or Gabor noise" }, kDefaultMinPointsPerCell);
+    arguments.AddKnownArgument("max-points-per-cell", "maxppc", {}, { "maximum number of points per cell for Worley or Gabor noise" }, kDefaultMaxPointsPerCell);
+    arguments.AddKnownArgument("cell-size", "cs", {}, { "size of a single cell for Worley or Gabor noise" }, kDefaultCellSize);
+
+    arguments.AddKnownArgument("anisotropic", "a", { "" }, { "generate anisotropic Gabor noise" });
 
     // Lattice parameters
     arguments.AddKnownArgument("lattice-width", "lw", {}, { "width of the lattice for lattice-based noises" }, kDefaultLatticeWidth);
@@ -212,6 +236,7 @@ i32 main(i32 argc, const char** argv)
         kValue,
         kPerlin,
         kModified,
+        kGabor,
     };
 
     u32 numChannels = 1;
@@ -252,6 +277,9 @@ i32 main(i32 argc, const char** argv)
         break;
     case Generator::kModified:
         generateModified(tiling, arguments, *generated);
+        break;
+    case Generator::kGabor:
+        generateGabor(tiling, arguments, *generated);
         break;
     };
 
