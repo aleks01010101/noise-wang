@@ -3,6 +3,7 @@
 #include "RunTests.hpp"
 
 #include "generators/Interpolator.hpp"
+#include "generators/noise/BetterGradientNoise.hpp"
 #include "generators/noise/GaborNoise.hpp"
 #include "generators/noise/ModifiedNoise.hpp"
 #include "generators/noise/PerlinNoise.hpp"
@@ -163,6 +164,15 @@ static void generateGabor(TilingMode mode, const ArgumentParser& parser, ImageDa
     generate<GaborNoise>(mode, parameters, result);
 }
 
+static void generateBetterGradient(TilingMode mode, const ArgumentParser& parser, ImageData& result)
+{
+    BetterGradientNoise<FifthOrderInterpolator>::Parameters parameters;
+    parameters.latticeWidth = parser.GetValueAs<u32>("lattice-width");
+    parameters.latticeHeight = parser.GetValueAs<u32>("lattice-height");
+
+    generate<BetterGradientNoise<FifthOrderInterpolator>>(mode, parameters, result);
+}
+
 i32 main(i32 argc, const char** argv)
 {
     ArgumentParser arguments;
@@ -170,7 +180,7 @@ i32 main(i32 argc, const char** argv)
     arguments.AddKnownArgument("run-tests", "rt", { "" }, {"run unit tests"});
     arguments.AddKnownArgument("help", "h", { "" }, { "print options" });
 
-    arguments.AddKnownArgument("generator", "g", { "checker", "worley", "white", "wavelet", "value", "perlin", "modified", "gabor" }, {
+    arguments.AddKnownArgument("generator", "g", { "checker", "worley", "white", "wavelet", "value", "perlin", "modified", "gabor", "better"}, {
         "select image generation algorithm",
 
         "generate checker pattern with random tile brightness",
@@ -181,6 +191,7 @@ i32 main(i32 argc, const char** argv)
         "generate Perlin noise",
         "generate modified noise",
         "generate Gabor noise",
+        "generate better gradient noise",
         });
     arguments.AddKnownArgument("tiling", "t", { "simple", "wang" }, {
         "select image tiling algorithm",
@@ -237,6 +248,7 @@ i32 main(i32 argc, const char** argv)
         kPerlin,
         kModified,
         kGabor,
+        kBetterGradient,
     };
 
     u32 numChannels = 1;
@@ -280,6 +292,9 @@ i32 main(i32 argc, const char** argv)
         break;
     case Generator::kGabor:
         generateGabor(tiling, arguments, *generated);
+        break;
+    case Generator::kBetterGradient:
+        generateBetterGradient(tiling, arguments, *generated);
         break;
     };
 

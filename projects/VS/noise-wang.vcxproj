@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\format\TGAFileFormat.cpp" />
+    <ClCompile Include="..\..\source\generators\noise\BetterGradientNoise.cpp" />
     <ClCompile Include="..\..\source\generators\noise\GaborNoise.cpp" />
     <ClCompile Include="..\..\source\generators\noise\ModifiedNoise.cpp" />
     <ClCompile Include="..\..\source\generators\noise\PerlinNoise.cpp" />
@@ -44,6 +45,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\source\format\TGAFileFormat.hpp" />
     <ClInclude Include="..\..\source\generators\Interpolator.hpp" />
+    <ClInclude Include="..\..\source\generators\noise\BetterGradientNoise.hpp" />
     <ClInclude Include="..\..\source\generators\noise\GaborNoise.hpp" />
     <ClInclude Include="..\..\source\generators\noise\IndexProviders.hpp" />
     <ClInclude Include="..\..\source\generators\noise\ModifiedNoise.hpp" />

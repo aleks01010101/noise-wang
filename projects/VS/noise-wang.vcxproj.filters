@@ -99,6 +99,9 @@
     <ClCompile Include="..\..\source\generators\noise\GaborNoise.cpp">
       <Filter>Source Files\generators\noise</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\generators\noise\BetterGradientNoise.cpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\utility\ArgumentParser.hpp">
@@ -168,6 +171,9 @@
       <Filter>Source Files\generators\noise</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\generators\noise\GaborNoise.hpp">
+      <Filter>Source Files\generators\noise</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\generators\noise\BetterGradientNoise.hpp">
       <Filter>Source Files\generators\noise</Filter>
     </ClInclude>
   </ItemGroup>

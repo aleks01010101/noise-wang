@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
+#include "utility/Types.hpp"
 
-#include "../../Vector3.hpp"
+#include <vector>
 
 class ImageData;
 
@@ -16,23 +16,12 @@ public:
         u32 latticeHeight;
     };
     
-public:
-    BetterGradientNoise();
-    ~BetterGradientNoise();
-
-public:
-    void GenerateNoTiling(ImageData& data) const;
-    void GenerateSimple(ImageData& data) const;
-    void GenerateWang(ImageData& data) const;
-    void GenerateCorner(ImageData& data) const;
-
-    void SetParameters(const Parameters& value) { m_Parameters = value; }
+    static void GenerateSimple(const Parameters& parameters, ImageData& data);
+    static void GenerateWang(const Parameters& parameters, ImageData& data);
 
 private:
-    void Generate(ImageData& data, const std::vector<std::vector<vec3u32>>& lattice) const;
+    typedef std::vector<std::vector<u32>> Lattice;
+    static void Generate(const Parameters& parameters, const Lattice& latticeX, const Lattice& latticeY, ImageData& data);
     
-    static void Initialize();
-
-private:
-    Parameters m_Parameters;
+    static void EnsureInitialized();
 };

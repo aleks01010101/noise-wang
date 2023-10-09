@@ -5,8 +5,6 @@
 #include "image/ImageData.hpp"
 #include "utility/Random.hpp"
 
-#include <cassert>
-
 struct GaborKernel
 {
     f32 operator ()(f32 width, f32 x, f32 y, f32 f0, f32 w0)
