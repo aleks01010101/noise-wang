@@ -1,6 +1,7 @@
 #include "ValueNoise.hpp"
 
 #include "generators/Interpolator.hpp"
+#include "generators/NoiseCommon.hpp"
 #include "image/ImageData.hpp"
 #include "utility/Random.hpp"
 
@@ -26,25 +27,10 @@ void ValueNoise<Interpolator>::Generate(const std::vector<std::vector<f32>>& lat
         latticeXStride = (latticeXStride >= 1) ? latticeXStride : 1;    
         latticeYStride = (latticeYStride >= 1) ? latticeYStride : 1;
 
-        xWeights.clear();
         u32 xWeightCount = w / parameters.latticeWidth;
-        if (xWeightCount <= 1)
-            xWeights.push_back(0.5f);
-        else
-        {
-            for (u32 i = 0; i < xWeightCount; ++i)
-                xWeights.push_back(static_cast<f32>(i) / static_cast<f32>(xWeightCount));
-        }
-
-        yWeights.clear();
         u32 yWeightCount = h / parameters.latticeHeight;
-        if (yWeightCount <= 1)
-            yWeights.push_back(0.5f);
-        else
-        {
-            for (u32 i = 0; i < yWeightCount; ++i)
-                yWeights.push_back(static_cast<f32>(i) / static_cast<f32>(yWeightCount));
-        }
+        generateWeights(xWeightCount, xWeights);
+        generateWeights(yWeightCount, yWeights);
 
         f32* pixels = data.GetPixels(mip);
         u32 index = 0;
@@ -68,10 +54,8 @@ void ValueNoise<Interpolator>::Generate(const std::vector<std::vector<f32>>& lat
                 f32 br = bottom[rightIndex];
 
                 f32 xWeight = Interpolator()(xWeights[xWeightIndex]);
-                f32 invXWeight = 1.0f - xWeight;
-                f32 t = tl * invXWeight + tr * xWeight;
-                f32 b = bl * invXWeight + br * xWeight;
-                pixels[index] = t * invYWeight + b * yWeight;
+                
+                pixels[index] = bilerp(tl, tr, bl, br, yWeight, invYWeight, xWeight);
 
                 ++index;
                 ++xWeightIndex;
@@ -98,13 +82,10 @@ void ValueNoise<Interpolator>::Generate(const std::vector<std::vector<f32>>& lat
 template<class Interpolator>
 void ValueNoise<Interpolator>::GenerateSimple(const Parameters& parameters, ImageData& data)
 {
-    u32 w;
-    u32 h;
-    data.GetDimensions(w, h, 0);
+    u32 w = data.GetWidth();
+    u32 h = data.GetHeight();
     assert(w % parameters.latticeWidth == 0);
     assert(h % parameters.latticeHeight == 0);
-    assert(parameters.latticeWidth > 0);
-    assert(parameters.latticeHeight > 0);
 
     u32 yPoints = parameters.latticeHeight + 1;
     u32 xPoints = parameters.latticeWidth + 1;
@@ -153,15 +134,12 @@ void ValueNoise<Interpolator>::GenerateSimple(const Parameters& parameters, Imag
 template<class Interpolator>
 void ValueNoise<Interpolator>::GenerateWang(const Parameters& parameters, ImageData& data)
 {
-    u32 w;
-    u32 h;
-    data.GetDimensions(w, h, 0);
+    u32 w = data.GetWidth();
+    u32 h = data.GetHeight();
     assert(w % parameters.latticeWidth == 0);
     assert(h % parameters.latticeHeight == 0);
     assert((parameters.latticeWidth & 3) == 0);
     assert((parameters.latticeHeight & 3) == 0);
-    assert(parameters.latticeWidth > 0);
-    assert(parameters.latticeHeight > 0);
 
     u32 yPoints = parameters.latticeHeight + 1;
     u32 xPoints = parameters.latticeWidth + 1;

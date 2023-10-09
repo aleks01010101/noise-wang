@@ -24,6 +24,9 @@ struct NoiseSampler
         u32 impulseCount = generator.Poisson(static_cast<f32>(parameters.numberOfImpulsesPerCell));
         impulseCount = impulseCount > parameters.numberOfImpulsesPerCellCap ? parameters.numberOfImpulsesPerCellCap : impulseCount;
         f32 result = 0.0f;
+
+        f32 kernelX = x * parameters.cellSize;
+        f32 kernelY = y * parameters.cellSize;
         for (u32 k = 0; k < impulseCount; ++k)
         {
             f32 xi = generator.Uniform();
@@ -32,7 +35,9 @@ struct NoiseSampler
             f32 o = generator.Uniform(parameters.frequencyOrientationMin, parameters.frequencyOrientationMax);
             f32 f = generator.Uniform(parameters.frequencyMagnitudeMin, parameters.frequencyMagnitudeMax);
 
-            result += w * kernel(parameters.gaussianWidth, (x - xi) * parameters.cellSize, (y - yi) * parameters.cellSize, f, o);
+            f32 value = kernel(parameters.gaussianWidth, fmaf(-xi, parameters.cellSize, kernelX), fmaf(-yi, parameters.cellSize, kernelY), f, o);
+
+            result = fmaf(w, value, result);
         }
 
         return result;

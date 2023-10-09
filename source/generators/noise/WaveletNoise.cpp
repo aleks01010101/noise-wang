@@ -3,6 +3,7 @@
 #include "ValueNoise.cpp"
 
 #include "generators/Interpolator.hpp"
+#include "generators/NoiseCommon.hpp"
 #include "image/ImageData.hpp"
 
 static constexpr u32 kRadius = 16;
@@ -11,10 +12,10 @@ static void Downsample(const f32* const source, f32* destination, u32 size, u32 
 {
     u32 length = size >> 1;
     f32 coefficients[] = {
-            0.000334f, -0.001528f,  0.000410f,  0.003545f, -0.000938f, -0.008233f,  0.002172f,  0.019120f,
+         0.000334f, -0.001528f,  0.000410f,  0.003545f, -0.000938f, -0.008233f,  0.002172f,  0.019120f,
         -0.005040f, -0.044412f,  0.011655f,  0.103311f, -0.025936f, -0.243780f,  0.033979f,  0.655340f,
-            0.655340f,  0.033979f, -0.243780f, -0.025936f,  0.103311f,  0.011655f, -0.044412f, -0.005040f,
-            0.019120f,  0.002172f, -0.008233f, -0.000938f,  0.003546f,  0.000410f, -0.001528f,  0.000334f
+         0.655340f,  0.033979f, -0.243780f, -0.025936f,  0.103311f,  0.011655f, -0.044412f, -0.005040f,
+         0.019120f,  0.002172f, -0.008233f, -0.000938f,  0.003546f,  0.000410f, -0.001528f,  0.000334f
     };
 
     const u32 radius = kRadius << 1;
@@ -26,7 +27,7 @@ static void Downsample(const f32* const source, f32* destination, u32 size, u32 
         index *= stride;
         for (u32 k = 0; k < radius; ++k)
         {
-            value += coefficients[k] * source[index >= maxIndex ? 0 : index];
+            value = fmaf(coefficients[k], source[index >= maxIndex ? 0 : index], value);
             index += stride;
         }
 
@@ -34,7 +35,7 @@ static void Downsample(const f32* const source, f32* destination, u32 size, u32 
     }
 }
 
-static inline void Upsample(const f32* const source, f32* destination, u32 size, u32 stride)
+static void Upsample(const f32* const source, f32* destination, u32 size, u32 stride)
 {
     f32 coefficients[] = {
         0.25f, 0.75f, 0.75f, 0.25f
@@ -48,9 +49,9 @@ static inline void Upsample(const f32* const source, f32* destination, u32 size,
         u32 base = i >> 1;
         u32 offset = i & 1;
         u32 index = base * stride;
-        value += coefficients[offset] * source[index >= maxIndex ? 0 : index];
+        value = fmaf(coefficients[offset], source[index >= maxIndex ? 0 : index], value);
         index += stride;
-        value += coefficients[offset + 2] * source[index >= maxIndex ? 0 : index];
+        value = fmaf(coefficients[offset + 2], source[index >= maxIndex ? 0 : index], value);
         destination[i * stride] = value;
     }
 }
@@ -128,25 +129,10 @@ void WaveletNoise<Interpolator>::Generate(const Parameters& parameters, ImageDat
             break;
         }
 
-        xWeights.clear();
         u32 xWeightCount = width / parameters.latticeWidth;
-        if (xWeightCount <= 1)
-            xWeights.push_back(0.5f);
-        else
-        {
-            for (u32 i = 0; i < xWeightCount; ++i)
-                xWeights.push_back(static_cast<f32>(i) / static_cast<f32>(xWeightCount));
-        }
-
-        yWeights.clear();
         u32 yWeightCount = height / parameters.latticeHeight;
-        if (yWeightCount <= 1)
-            yWeights.push_back(0.5f);
-        else
-        {
-            for (u32 i = 0; i < yWeightCount; ++i)
-                yWeights.push_back(static_cast<f32>(i) / static_cast<f32>(yWeightCount));
-        }
+        generateWeights(xWeightCount, xWeights);
+        generateWeights(yWeightCount, yWeights);
 
         u32 index = 0;
         u32 topIndex = 0;
@@ -165,16 +151,14 @@ void WaveletNoise<Interpolator>::Generate(const Parameters& parameters, ImageDat
             for (u32 i = 0; i < width; ++i)
             {
                 f32 xWeight = Interpolator()(xWeights[xWeightIndex]);
-                f32 invXWeight = 1.0f - xWeight;
 
                 f32 tl = top[leftIndex];
                 f32 tr = top[rightIndex];
                 f32 bl = bottom[leftIndex];
                 f32 br = bottom[rightIndex];
 
-                f32 t = tl * invXWeight + tr * xWeight;
-                f32 b = bl * invXWeight + br * xWeight;
-                pixels[index] = (t * invYWeight + b * yWeight) * 0.5f + 0.5f;
+                f32 value = bilerp(tl, tr, bl, br, yWeight, invYWeight, xWeight);
+                pixels[index] = fmaf(value, 0.5f, 0.5f);
 
                 ++index;
                 ++xWeightIndex;

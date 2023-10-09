@@ -2,7 +2,6 @@
 
 #include "image/ImageData.hpp"
 
-#include <cstring>
 #include <vector>
 
 static std::vector<u32> S;

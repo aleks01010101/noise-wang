@@ -7,7 +7,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <algorithm>
 
 struct Result
 {

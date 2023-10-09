@@ -1,6 +1,7 @@
 #include "PerlinNoise.hpp"
 
 #include "generators/Interpolator.hpp"
+#include "generators/NoiseCommon.hpp"
 #include "image/ImageData.hpp"
 #include "utility/Random.hpp"
 
@@ -56,19 +57,6 @@ void PerlinNoise<Interpolator>::EnsureInitialized()
         original[index] = original.back();
         original.pop_back();
     }
-}
-
-static void generateWeights(u32 count, std::vector<f32>& outWeights)
-{
-    outWeights.clear();
-    if (count > 1)
-    {
-        f32 divisor = static_cast<f32>(count);
-        for (u32 i = 0; i < count; ++i)
-            outWeights.push_back(static_cast<f32>(i) / divisor);
-    }
-    else
-        outWeights.push_back(0.5f);
 }
 
 template<class Interpolator>
@@ -128,16 +116,13 @@ void PerlinNoise<Interpolator>::Generate(const Lattice& latticeX, const Lattice&
                 f32 x0 = xWeights[xWeightIndex];
                 f32 x1 = x0 - 1.0f;
                 f32 xWeight = Interpolator()(x0);
-                f32 invXWeight = 1.0f - xWeight;
 
                 f32 g0 = fmaf(tlX, x0, tlY * y0);
                 f32 g1 = fmaf(trX, x1, trY * y0);
                 f32 g2 = fmaf(blX, x0, blY * y1);
                 f32 g3 = fmaf(brX, x1, brY * y1);
 
-                f32 t = fmaf(g0, invXWeight, g1 * xWeight);
-                f32 b = fmaf(g2, invXWeight, g3 * xWeight);
-                f32 value = fmaf(t, invYWeight, b * yWeight);
+                f32 value = bilerp(g0, g1, g2, g3, yWeight, invYWeight, xWeight);
                 pixels[index] = fmaf(value, 0.5f, 0.5f);
 
                 ++index;

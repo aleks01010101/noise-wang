@@ -1,6 +1,7 @@
 #include "BetterGradientNoise.hpp"
 
 #include "generators/Interpolator.hpp"
+#include "generators/NoiseCommon.hpp"
 
 #include "image/ImageData.hpp"
 #include "utility/Random.hpp"
@@ -104,19 +105,6 @@ void BetterGradientNoise<Interpolator>::EnsureInitialized()
     initialize(kCount, rand, sPermutationsZ, original);
 }
 
-static void generateWeights(u32 count, std::vector<f32>& outWeights)
-{
-    outWeights.clear();
-    if (count > 1)
-    {
-        f32 divisor = static_cast<f32>(count);
-        for (u32 i = 0; i < count; ++i)
-            outWeights.push_back(static_cast<f32>(i) / divisor);
-    }
-    else
-        outWeights.push_back(0.5f);
-}
-
 template<class Interpolator>
 void BetterGradientNoise<Interpolator>::Generate(const Parameters& parameters,
     const Lattice& latticeX, const Lattice& latticeY, ImageData& data)
@@ -203,7 +191,7 @@ void BetterGradientNoise<Interpolator>::Generate(const Parameters& parameters,
                         f32 dx = x0 - static_cast<f32>(i);
 
                         f32 dist = dx * dx + dy * dy;
-                        if (dist < 4.0)
+                        if (dist < 4.0f)
                         {
                             u32 hash = hasher(*xRow[rowIndex], *yRow[rowIndex], 0);
                             f32 t = fmaf(dist, -0.25f, 1.0f);
